@@ -88,6 +88,23 @@ local function picker_finish(matches)
   end
 end
 
+--- https://neovim.discourse.group/t/how-do-you-work-with-strings-with-multibyte-characters-in-lua/2437/3
+---@param str string
+---@param i integer
+---@param j? integer
+---@return string
+local function str_sub(str, i, j)
+    local length = vim.str_utfindex(str)
+    if i < 0 then i = i + length + 1 end
+    if (j and j < 0) then j = j + length + 1 end
+    local u = (i > 0) and i or 1
+    local v = (j and j <= length) and j or length
+    if (u > v) then return "" end
+    local s = vim.str_byteindex(str, u - 1)
+    local e = vim.str_byteindex(str, v)
+    return str:sub(s + 1, e)
+end
+
 local function code_compass_picker(query, title, get_field_access_query, opts)
   local cwd = vim.fn.getcwd()
   local line_in_result = 1
@@ -120,7 +137,7 @@ local function code_compass_picker(query, title, get_field_access_query, opts)
                 line = line_contents
               })
             else
-              line_contents = line:sub(12)
+              line_contents = str_sub(line, 7)
             end
           elseif line:match("help%[") then
             line_in_result = 2

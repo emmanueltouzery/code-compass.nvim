@@ -10,7 +10,7 @@ local function after_test5(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
     col = 27,
-    line = "TestEnum v = TestEnum.V1;",
+    line = "   TestEnum v = TestEnum.V1;",
     lnum = 18,
     path = "Test.java"
   }})
@@ -27,22 +27,22 @@ local function after_test4(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
     col = 33,
-    line = "External var = new External(Test2.MY_CONST);",
+    line = "   External var = new External(Test2.MY_CONST);",
     lnum = 12,
     path = "Test.java"
   }, {
     col = 10,
-    line = "(new Test2()).function1();",
+    line = "   (new Test2()).function1();",
     lnum = 17,
     path = "Test.java"
   }, {
     col = 37,
-    line = 'Arrays.asList("a", "b").forEach(Test2::transformString);',
+    line = '   Arrays.asList("a", "b").forEach(Test2::transformString);',
     lnum = 24,
     path = "Test.java"
   }, {
     col = 5,
-    line = 'Test2.transformString("te");',
+    line = '   Test2.transformString("te");',
     lnum = 34,
     path = "Test.java"
   }})
@@ -61,7 +61,7 @@ local function after_test3(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
     col = 39,
-    line = "External var = new External(Test2.MY_CONST);",
+    line = "   External var = new External(Test2.MY_CONST);",
     lnum = 12,
     path = "Test.java"
   }})
@@ -80,7 +80,7 @@ local function after_test2(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
     col = 19,
-    line = "(new Test2()).function1();",
+    line = "   (new Test2()).function1();",
     lnum = 17,
     path = "Test.java"
   }})
@@ -98,17 +98,17 @@ local function after_test1(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
     col = 44,
-    line = 'Arrays.asList("a", "b").forEach(Test2::transformString);',
+    line = '   Arrays.asList("a", "b").forEach(Test2::transformString);',
     lnum = 24,
     path = "Test.java"
   }, { -- TODO this match is wrong.. this is refering to transformString in another class
     col = 43,
-    line = 'Arrays.asList("a", "b").forEach(this::transformString);',
+    line = '   Arrays.asList("a", "b").forEach(this::transformString);',
     lnum = 33,
     path = "Test.java"
   }, {
     col = 11,
-    line = 'Test2.transformString("te");',
+    line = '   Test2.transformString("te");',
     lnum = 34,
     path = "Test.java"
   }})

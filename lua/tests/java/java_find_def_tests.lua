@@ -25,7 +25,7 @@ local function after_test11(script_path, passed, failed, after, res)
   local expected = vim.inspect(
   {{
     col = 14,
-    line = "ublic class ClassOne {",
+    line = "public class ClassOne {",
     lnum = 3,
     path = "PackageOneClassOne.java"
   }})
@@ -45,7 +45,7 @@ local function after_test10(script_path, passed, failed, after, res)
   local expected = vim.inspect(
   {{
     col = 17,
-    line = "  public String transformString(String input) {",
+    line = "   public String transformString(String input) {",
     lnum = 27,
     path = "Test.java"
   }})
@@ -66,7 +66,7 @@ local function after_test9(script_path, passed, failed, after, res)
   local expected = vim.inspect(
   {{
     col = 18,
-    line = "vate String field;",
+    line = "private String field;",
     lnum = 7,
     path = "Test.java"
   }})
@@ -85,7 +85,7 @@ local function after_test8(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
     col = 17,
-    line = "  public String transformString(String input) {",
+    line = "   public String transformString(String input) {",
     lnum = 12,
     path = "Test2.java"
   }})
@@ -104,7 +104,7 @@ local function after_test7(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
     col = 15,
-    line = "  public enum TestEnum {",
+    line = "   public enum TestEnum {",
     lnum = 7,
     path = "Test2.java"
   }})
@@ -123,7 +123,7 @@ local function after_test6(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
     col = 21,
-    line = "lic static int MY_CONST = 16;",
+    line = "public static int MY_CONST = 16;",
     lnum = 3,
     path = "Test2.java"
   }})
@@ -142,7 +142,7 @@ local function after_test5(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
     col = 14,
-    line = "public class Test2 {",
+    line = " public class Test2 {",
     lnum = 1,
     path = "Test2.java"
   }})
@@ -161,7 +161,7 @@ local function after_test4(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
     col = 15,
-    line = "lic void function1() {}",
+    line = "public void function1() {}",
     lnum = 5,
     path = "Test2.java"
   }})
