@@ -101,7 +101,7 @@ local function after_test1(script_path, passed, failed, after, res)
     line = 'Arrays.asList("a", "b").forEach(Test2::transformString);',
     lnum = 23,
     path = "Test.java"
-  }, {
+  }, { -- TODO this match is wrong.. this is refering to transformString in another class
     col = 43,
     line = 'Arrays.asList("a", "b").forEach(this::transformString);',
     lnum = 32,
