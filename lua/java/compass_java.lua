@@ -15,6 +15,19 @@ rule:
   return references_pattern:gsub('#word#', word)
 end
 
+local function ts_node_get_classname(bufnr, node)
+  local cur_node = node
+  while cur_node ~= nil and cur_node:type() ~= "class_declaration" do
+    cur_node = cur_node:parent()
+  end
+  if cur_node:type() == "class_declaration" then
+    -- get the class name
+    local row1, col1, row2, col2 = cur_node:named_child(1):range()
+    return vim.api.nvim_buf_get_text(bufnr, row1, col1, row2, col2, {})[1]
+  end
+  return nil
+end
+
 local function get_definition_query()
   local ts_utils = require("nvim-treesitter.ts_utils")
   local ts_node = ts_utils.get_node_at_cursor()
@@ -25,6 +38,11 @@ local function get_definition_query()
     local row1, col1, row2, col2 = ts_node:prev_sibling():prev_sibling():range()
     local bufnr = vim.api.nvim_win_get_buf(0)
     local className = vim.api.nvim_buf_get_text(bufnr, row1, col1, row2, col2, {})[1]
+    if className == "this" then
+      -- replace by the current class name
+      className = ts_node_get_classname(bufnr, parent1)
+    end
+
     local find_method_reference_def_pattern = [[
       id: query
       language: Java
@@ -54,18 +72,9 @@ local function get_definition_query()
     local fieldOwner = vim.api.nvim_buf_get_text(bufnr, row1, col1, row2, col2, {})[1]
 
     if fieldOwner == "this" then
-      local cur_node = parent1
       -- replace by the current class name
-      while cur_node ~= nil and cur_node:type() ~= "class_declaration" do
-        cur_node = cur_node:parent()
-      end
-      if cur_node:type() == "class_declaration" then
-        -- get the class name
-        local row1, col1, row2, col2 = cur_node:named_child(1):range()
-        fieldOwner = vim.api.nvim_buf_get_text(bufnr, row1, col1, row2, col2, {})[1]
-      end
+      fieldOwner = ts_node_get_classname(bufnr, parent1)
     end
-    print(fieldOwner)
 
     local find_method_reference_def_pattern = [[
       id: query

@@ -1,3 +1,22 @@
+local function after_test10(script_path, passed, failed, after, res)
+  res[1]['fname'] = nil
+  res[1]['path'] = res[1].path:gmatch("[^/]+$")()
+  local actual = vim.inspect(res)
+  local expected = vim.inspect(
+  {{
+    col = 17,
+    line = "  public String transformString(String input) {",
+    lnum = 25,
+    path = "Test.java"
+  }})
+  if actual == expected then
+    table.insert(passed, 10)
+  else
+    table.insert(failed, 10)
+  end
+  after(passed, failed)
+end
+
 local function after_test9(script_path, passed, failed, after, res)
   res[1]['fname'] = nil
   res[1]['path'] = res[1].path:gmatch("[^/]+$")()
@@ -14,7 +33,8 @@ local function after_test9(script_path, passed, failed, after, res)
   else
     table.insert(failed, 9)
   end
-  after(passed, failed)
+  vim.fn.setpos('.', {0, 31, 55, 0}) -- 'this::>transformString<'
+  require'code_compass'.find_definition({matches_callback = function(res) after_test10(script_path, passed, failed, after, res) end})
 end
 
 local function after_test8(script_path, passed, failed, after, res)

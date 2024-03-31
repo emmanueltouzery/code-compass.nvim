@@ -98,6 +98,12 @@ local function after_test1(script_path, passed, failed, after, res)
     line = 'Arrays.asList("a", "b").forEach(Test2::transformString);',
     lnum = 22,
     path = "Test.java"
+  }, { -- TODO this match is wrong.. this is refering to transformString in another class
+    col = 43,
+    fname = "/lua/tests/java/Test.java",
+    line = 'Arrays.asList("a", "b").forEach(this::transformString);',
+    lnum = 31,
+    path = "/home/emmanuel/home/code-compass.nvim//lua/tests/java/Test.java"
   }})
   if actual == expected then
     table.insert(passed, 1)

@@ -26,4 +26,8 @@ public class Test {
     int field = 6;
     return this.field + "/";
   }
+
+  private String testMethodRefThis() {
+    Arrays.asList("a", "b").forEach(this::transformString);
+  }
 }
