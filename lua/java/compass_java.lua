@@ -128,6 +128,30 @@ local function get_definition_field_access(ts_node, parent1)
   return find_definition_field_def_pattern:gsub('#fieldName#', fieldName):gsub('#className#', fieldOwner)
 end
 
+local function get_definition_type_no_package()
+  local word = vim.fn.expand('<cword>')
+  local find_def_pattern = [[
+    id: query
+    language: Java
+
+    rule:
+      any:
+        - pattern: #word#
+
+          inside:
+            kind: class_declaration
+        - pattern: #word#
+
+          inside:
+            kind: interface_declaration
+        - pattern: #word#
+
+          inside:
+            kind: enum_declaration
+    ]]
+    return find_def_pattern:gsub('#word#', word)
+end
+
 local function get_definition_type()
   local bufnr = 0
   local word = vim.fn.expand('<cword>')
@@ -149,7 +173,7 @@ local function get_definition_type()
       :gsub("." .. word, "")
   end
   if package_statement == nil then
-    return get_default_query()
+    return get_definition_type_no_package()
   end
   local find_def_pattern = [[
     id: query

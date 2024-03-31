@@ -34,4 +34,6 @@ public class Test {
     Test2.transformString("te");
     ClassOne val = new ClassOne();
   }
+
+  private static void Test2() {}
 }

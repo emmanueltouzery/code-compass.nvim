@@ -1,6 +1,12 @@
+local function fix_fname_path(res)
+  for _, v in ipairs(res) do
+    v['fname'] = nil
+    v['path'] = res[1].path:gmatch("[^/]+$")()
+  end
+end
+
 local function after_test12(script_path, passed, failed, after, res)
-  res[1]['fname'] = nil
-  res[1]['path'] = res[1].path:gmatch("[^/]+$")()
+  fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect(
   {{
@@ -19,8 +25,7 @@ local function after_test12(script_path, passed, failed, after, res)
 end
 
 local function after_test11(script_path, passed, failed, after, res)
-  res[1]['fname'] = nil
-  res[1]['path'] = res[1].path:gmatch("[^/]+$")()
+  fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect(
   {{
@@ -39,8 +44,7 @@ local function after_test11(script_path, passed, failed, after, res)
 end
 
 local function after_test10(script_path, passed, failed, after, res)
-  res[1]['fname'] = nil
-  res[1]['path'] = res[1].path:gmatch("[^/]+$")()
+  fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect(
   {{
@@ -60,8 +64,7 @@ local function after_test10(script_path, passed, failed, after, res)
 end
 
 local function after_test9(script_path, passed, failed, after, res)
-  res[1]['fname'] = nil
-  res[1]['path'] = res[1].path:gmatch("[^/]+$")()
+  fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect(
   {{
@@ -80,8 +83,7 @@ local function after_test9(script_path, passed, failed, after, res)
 end
 
 local function after_test8(script_path, passed, failed, after, res)
-  res[1]['fname'] = nil
-  res[1]['path'] = res[1].path:gmatch("[^/]+$")()
+  fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
     col = 17,
@@ -99,8 +101,7 @@ local function after_test8(script_path, passed, failed, after, res)
 end
 
 local function after_test7(script_path, passed, failed, after, res)
-  res[1]['fname'] = nil
-  res[1]['path'] = res[1].path:gmatch("[^/]+$")()
+  fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
     col = 15,
@@ -118,8 +119,7 @@ local function after_test7(script_path, passed, failed, after, res)
 end
 
 local function after_test6(script_path, passed, failed, after, res)
-  res[1]['fname'] = nil
-  res[1]['path'] = res[1].path:gmatch("[^/]+$")()
+  fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
     col = 21,
@@ -137,8 +137,7 @@ local function after_test6(script_path, passed, failed, after, res)
 end
 
 local function after_test5(script_path, passed, failed, after, res)
-  res[1]['fname'] = nil
-  res[1]['path'] = res[1].path:gmatch("[^/]+$")()
+  fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
     col = 14,
@@ -156,8 +155,7 @@ local function after_test5(script_path, passed, failed, after, res)
 end
 
 local function after_test4(script_path, passed, failed, after, res)
-  res[1]['fname'] = nil
-  res[1]['path'] = res[1].path:gmatch("[^/]+$")()
+  fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
     col = 15,
@@ -175,14 +173,14 @@ local function after_test4(script_path, passed, failed, after, res)
 end
 
 local function after_test3(script_path, passed, failed, after, res)
-  res[1]['fname'] = nil
+  fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
     bufnr = 0,
     col = 19,
     line = "import com.example.External;",
     lnum = 1,
-    path = "lua/tests/java/Test.java"
+    path = "Test.java"
   }})
   if actual == expected then
     table.insert(passed, 3)
@@ -194,14 +192,14 @@ local function after_test3(script_path, passed, failed, after, res)
 end
 
 local function after_test2(script_path, passed, failed, after, res)
-  res[1]['fname'] = nil
+  fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
     bufnr = 0,
     col = 8,
     line = "    int localVar = 2;",
     lnum = 10,
-    path = "lua/tests/java/Test.java"
+    path = "Test.java"
   }})
   if actual == expected then
     table.insert(passed, 2)
@@ -213,14 +211,14 @@ local function after_test2(script_path, passed, failed, after, res)
 end
 
 local function after_test1(script_path, passed, failed, after, res)
-  res[1]['fname'] = nil
+  fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
     bufnr = 0,
     col = 17,
     line = "  private String field;",
     lnum = 7,
-    path = "lua/tests/java/Test.java"
+    path = "Test.java"
   }})
   if actual == expected then
     table.insert(passed, 1)
