@@ -1,4 +1,5 @@
 import com.example.External;
+import package1.ClassOne;
 
 public class Test {
 
@@ -29,5 +30,7 @@ public class Test {
 
   private String testMethodRefThis() {
     Arrays.asList("a", "b").forEach(this::transformString);
+    Test2.transformString("te");
+    ClassOne val = new ClassOne();
   }
 }
