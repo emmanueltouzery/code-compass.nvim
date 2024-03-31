@@ -1,3 +1,22 @@
+local function after_test9(script_path, passed, failed, after, res)
+  res[1]['fname'] = nil
+  res[1]['path'] = res[1].path:gmatch("[^/]+$")()
+  local actual = vim.inspect(res)
+  local expected = vim.inspect(
+  {{
+    col = 18,
+    line = "vate String field;",
+    lnum = 5,
+    path = "Test.java"
+  }})
+  if actual == expected then
+    table.insert(passed, 9)
+  else
+    table.insert(failed, 9)
+  end
+  after(passed, failed)
+end
+
 local function after_test8(script_path, passed, failed, after, res)
   res[1]['fname'] = nil
   res[1]['path'] = res[1].path:gmatch("[^/]+$")()
@@ -13,7 +32,8 @@ local function after_test8(script_path, passed, failed, after, res)
   else
     table.insert(failed, 8)
   end
-  after(passed, failed)
+  vim.fn.setpos('.', {0, 27, 19, 0}) -- 'this.>field<'
+  require'code_compass'.find_definition({matches_callback = function(res) after_test9(script_path, passed, failed, after, res) end})
 end
 
 local function after_test7(script_path, passed, failed, after, res)

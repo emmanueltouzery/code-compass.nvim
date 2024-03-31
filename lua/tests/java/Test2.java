@@ -10,6 +10,9 @@ public class Test2 {
   }
 
   public String transformString(String input) {
+    int localVar = 6;
     return input + "/";
   }
+
+  private String field;
 }

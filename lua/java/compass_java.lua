@@ -45,62 +45,78 @@ local function get_definition_query()
     ]]
     return find_method_reference_def_pattern:gsub('#methodName#', methodName):gsub('#className#', className)
   elseif parent1:type() == "field_access" then
-      -- it could be a static field access, Class.FIELD, or a non-static instance.FIELD.
-      -- treesitter doesn't know. Let's optimistically try Class.FIELD. If it is in fact
-      -- instance.field, then we'll catch that with find_field_access() as a final fallback.
-      local fieldName = vim.fn.expand('<cword>')
-      local row1, col1, row2, col2 = ts_node:prev_sibling():prev_sibling():range()
-      local bufnr = vim.api.nvim_win_get_buf(0)
-      local fieldOwner = vim.api.nvim_buf_get_text(bufnr, row1, col1, row2, col2, {})[1]
+    -- it could be a static field access, Class.FIELD, or a non-static instance.FIELD.
+    -- treesitter doesn't know. Let's optimistically try Class.FIELD. If it is in fact
+    -- instance.field, then we'll catch that with find_field_access() as a final fallback.
+    local fieldName = vim.fn.expand('<cword>')
+    local row1, col1, row2, col2 = ts_node:prev_sibling():prev_sibling():range()
+    local bufnr = vim.api.nvim_win_get_buf(0)
+    local fieldOwner = vim.api.nvim_buf_get_text(bufnr, row1, col1, row2, col2, {})[1]
 
-      local find_method_reference_def_pattern = [[
-        id: query
-        language: Java
+    if fieldOwner == "this" then
+      local cur_node = parent1
+      -- replace by the current class name
+      while cur_node ~= nil and cur_node:type() ~= "class_declaration" do
+        cur_node = cur_node:parent()
+      end
+      if cur_node:type() == "class_declaration" then
+        -- get the class name
+        local row1, col1, row2, col2 = cur_node:named_child(1):range()
+        fieldOwner = vim.api.nvim_buf_get_text(bufnr, row1, col1, row2, col2, {})[1]
+      end
+    end
+    print(fieldOwner)
 
-        utils:
-          is-field-identifier:
-            inside:
-              kind: variable_declarator
-
-        rule:
-          pattern: #fieldName#
-          matches: is-field-identifier
-          inside:
-            stopBy:
-              kind: class_declaration
-            has:
-              pattern: #className#
-      ]]
-      return find_method_reference_def_pattern:gsub('#fieldName#', fieldName):gsub('#className#', fieldOwner)
-    else
-      local word = vim.fn.expand('<cword>')
-      local find_def_pattern = [[
+    local find_method_reference_def_pattern = [[
       id: query
       language: Java
+
+      utils:
+        is-field-identifier:
+          inside:
+            stopBy:
+              kind: field_declaration
+            kind: field_declaration
+
       rule:
-        any:
-          - pattern: #word#
+        pattern: #fieldName#
+        matches: is-field-identifier
+        inside:
+          stopBy:
+            kind: class_declaration
+          has:
+            pattern: #className#
+    ]]
+    return find_method_reference_def_pattern:gsub('#fieldName#', fieldName):gsub('#className#', fieldOwner)
+  else
+    local word = vim.fn.expand('<cword>')
+    local find_def_pattern = [[
+    id: query
+    language: Java
+    rule:
+      any:
+        - pattern: #word#
 
-            inside:
-              kind: method_declaration
-          - pattern: #word#
+          inside:
+            kind: method_declaration
+        - pattern: #word#
 
-            inside:
-              kind: class_declaration
-          - pattern: #word#
+          inside:
+            kind: class_declaration
+        - pattern: #word#
 
-            inside:
-              kind: interface_declaration
-          - pattern: #word#
+          inside:
+            kind: interface_declaration
+        - pattern: #word#
 
-            inside:
-              kind: annotation_type_declaration
-          - pattern: #word#
+          inside:
+            kind: annotation_type_declaration
+        - pattern: #word#
 
-            inside:
-              kind: enum_declaration
-      ]]
-      return find_def_pattern:gsub('#word#', word)
+          inside:
+            kind: enum_declaration
+    ]]
+    return find_def_pattern:gsub('#word#', word)
   end
 end
 

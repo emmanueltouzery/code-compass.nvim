@@ -23,6 +23,7 @@ public class Test {
   }
 
   public String transformString(String input) {
-    return input + "/";
+    int field = 6;
+    return this.field + "/";
   }
 }
