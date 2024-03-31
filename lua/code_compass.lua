@@ -137,7 +137,7 @@ local function code_compass_picker(query, title, get_field_access_query, opts)
                 line = line_contents
               })
             else
-              line_contents = str_sub(line, 7)
+              line_contents = str_sub(line, 7):gsub("╭", "")
             end
           elseif line:match("help%[") then
             line_in_result = 2
