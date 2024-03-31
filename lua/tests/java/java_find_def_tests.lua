@@ -1,3 +1,23 @@
+local function after_test12(script_path, passed, failed, after, res)
+  res[1]['fname'] = nil
+  res[1]['path'] = res[1].path:gmatch("[^/]+$")()
+  local actual = vim.inspect(res)
+  local expected = vim.inspect(
+  {{
+    bufnr = 0,
+    col = 17,
+    line = "import java.util.Arrays;",
+    lnum = 3,
+    path = "Test.java"
+  }})
+  if actual == expected then
+    table.insert(passed, 12)
+  else
+    table.insert(failed, 12)
+  end
+  after(passed, failed)
+end
+
 local function after_test11(script_path, passed, failed, after, res)
   res[1]['fname'] = nil
   res[1]['path'] = res[1].path:gmatch("[^/]+$")()
@@ -14,7 +34,8 @@ local function after_test11(script_path, passed, failed, after, res)
   else
     table.insert(failed, 11)
   end
-  after(passed, failed)
+  vim.fn.setpos('.', {0, 33, 6, 0}) -- '>Arrays<.asList()'
+  require'code_compass'.find_definition({matches_callback = function(res) after_test12(script_path, passed, failed, after, res) end})
 end
 
 local function after_test10(script_path, passed, failed, after, res)
@@ -25,7 +46,7 @@ local function after_test10(script_path, passed, failed, after, res)
   {{
     col = 17,
     line = "  public String transformString(String input) {",
-    lnum = 26,
+    lnum = 27,
     path = "Test.java"
   }})
   if actual == expected then
@@ -34,7 +55,7 @@ local function after_test10(script_path, passed, failed, after, res)
     table.insert(failed, 10)
   end
   -- it must use the package name to filter the matches
-  vim.fn.setpos('.', {0, 34, 29, 0}) -- 'new >ClassOne<()'
+  vim.fn.setpos('.', {0, 35, 29, 0}) -- 'new >ClassOne<()'
   require'code_compass'.find_definition({matches_callback = function(res) after_test11(script_path, passed, failed, after, res) end})
 end
 
@@ -46,7 +67,7 @@ local function after_test9(script_path, passed, failed, after, res)
   {{
     col = 18,
     line = "vate String field;",
-    lnum = 6,
+    lnum = 7,
     path = "Test.java"
   }})
   if actual == expected then
@@ -54,7 +75,7 @@ local function after_test9(script_path, passed, failed, after, res)
   else
     table.insert(failed, 9)
   end
-  vim.fn.setpos('.', {0, 32, 55, 0}) -- 'this::>transformString<'
+  vim.fn.setpos('.', {0, 33, 55, 0}) -- 'this::>transformString<'
   require'code_compass'.find_definition({matches_callback = function(res) after_test10(script_path, passed, failed, after, res) end})
 end
 
@@ -73,7 +94,7 @@ local function after_test8(script_path, passed, failed, after, res)
   else
     table.insert(failed, 8)
   end
-  vim.fn.setpos('.', {0, 28, 19, 0}) -- 'this.>field<'
+  vim.fn.setpos('.', {0, 29, 19, 0}) -- 'this.>field<'
   require'code_compass'.find_definition({matches_callback = function(res) after_test9(script_path, passed, failed, after, res) end})
 end
 
@@ -92,7 +113,7 @@ local function after_test7(script_path, passed, failed, after, res)
   else
     table.insert(failed, 7)
   end
-  vim.fn.setpos('.', {0, 23, 52, 0}) -- 'Test2::>transformString<'
+  vim.fn.setpos('.', {0, 24, 52, 0}) -- 'Test2::>transformString<'
   require'code_compass'.find_definition({matches_callback = function(res) after_test8(script_path, passed, failed, after, res) end})
 end
 
@@ -111,7 +132,7 @@ local function after_test6(script_path, passed, failed, after, res)
   else
     table.insert(failed, 6)
   end
-  vim.fn.setpos('.', {0, 17, 8, 0}) -- '>TestEnum< v'
+  vim.fn.setpos('.', {0, 18, 8, 0}) -- '>TestEnum< v'
   require'code_compass'.find_definition({matches_callback = function(res) after_test7(script_path, passed, failed, after, res) end})
 end
 
@@ -130,7 +151,7 @@ local function after_test5(script_path, passed, failed, after, res)
   else
     table.insert(failed, 5)
   end
-  vim.fn.setpos('.', {0, 11, 43, 0}) -- 'Test2.>MY_CONST<'
+  vim.fn.setpos('.', {0, 12, 43, 0}) -- 'Test2.>MY_CONST<'
   require'code_compass'.find_definition({matches_callback = function(res) after_test6(script_path, passed, failed, after, res) end})
 end
 
@@ -149,7 +170,7 @@ local function after_test4(script_path, passed, failed, after, res)
   else
     table.insert(failed, 4)
   end
-  vim.fn.setpos('.', {0, 16, 11, 0}) -- 'new >Test2<()'
+  vim.fn.setpos('.', {0, 17, 11, 0}) -- 'new >Test2<()'
   require'code_compass'.find_definition({matches_callback = function(res) after_test5(script_path, passed, failed, after, res) end})
 end
 
@@ -168,7 +189,7 @@ local function after_test3(script_path, passed, failed, after, res)
   else
     table.insert(failed, 3)
   end
-  vim.fn.setpos('.', {0, 16, 24, 0}) -- '.>function1<()'
+  vim.fn.setpos('.', {0, 17, 24, 0}) -- '.>function1<()'
   require'code_compass'.find_definition({matches_callback = function(res) after_test4(script_path, passed, failed, after, res) end})
 end
 
@@ -179,7 +200,7 @@ local function after_test2(script_path, passed, failed, after, res)
     bufnr = 0,
     col = 8,
     line = "    int localVar = 2;",
-    lnum = 9,
+    lnum = 10,
     path = "lua/tests/java/Test.java"
   }})
   if actual == expected then
@@ -187,7 +208,7 @@ local function after_test2(script_path, passed, failed, after, res)
   else
     table.insert(failed, 2)
   end
-  vim.fn.setpos('.', {0, 11, 8, 0}) -- '>External< val'
+  vim.fn.setpos('.', {0, 12, 8, 0}) -- '>External< val'
   require'code_compass'.find_definition({matches_callback = function(res) after_test3(script_path, passed, failed, after, res) end})
 end
 
@@ -198,7 +219,7 @@ local function after_test1(script_path, passed, failed, after, res)
     bufnr = 0,
     col = 17,
     line = "  private String field;",
-    lnum = 6,
+    lnum = 7,
     path = "lua/tests/java/Test.java"
   }})
   if actual == expected then
@@ -206,12 +227,12 @@ local function after_test1(script_path, passed, failed, after, res)
   else
     table.insert(failed, 1)
   end
-  vim.fn.setpos('.', {0, 9, 12, 0}) -- 'int >localVar<'
+  vim.fn.setpos('.', {0, 10, 12, 0}) -- 'int >localVar<'
   require'code_compass'.find_definition({matches_callback = function(res) after_test2(script_path, passed, failed, after, res) end})
 end
 
 local function run_find_def_tests(after)
-  vim.fn.setpos('.', {0, 12, 14, 0}) -- 'return >field<'
+  vim.fn.setpos('.', {0, 13, 14, 0}) -- 'return >field<'
   require'code_compass'.find_definition({matches_callback = function(res) after_test1(script_path, {}, {}, after, res) end})
 end
 

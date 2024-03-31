@@ -23,7 +23,7 @@ local function attempt_import_declaration_java(syntax_tree, bufnr, matches, word
   return matches
 end
 
-local function find_local_declarations_java()
+local function find_local_declarations()
   local word = vim.fn.expand('<cword>')
   local bufnr = 0
 
@@ -61,32 +61,6 @@ local function find_local_declarations_java()
     return attempt_import_declaration_java(syntax_tree, bufnr, matches, word)
   else
     return matches
-  end
-end
-
-local function find_local_declarations()
-  local matches = {}
-  if vim.bo.filetype == "java" then
-    matches = find_local_declarations_java()
-  end
-  local filtered_matches = {}
-  local cur_line = vim.fn.line('.')
-  -- keep only matches up to the current row (cannot use variables
-  -- defined later on), and keep only the last one such (the same
-  -- variable name can be used multiple times in the current file, we
-  -- want the latest declaration before the current line)
-  local latest_match = nil
-  for _, match in ipairs(matches) do
-    if match.lnum <= cur_line then
-      latest_match = match
-    else
-      break
-    end
-  end
-  if latest_match ~= nil then
-    return { latest_match }
-  else
-    return {}
   end
 end
 

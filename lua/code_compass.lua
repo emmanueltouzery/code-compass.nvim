@@ -10,6 +10,33 @@ local function find_buf_for_fname(fname)
   return nil
 end
 
+local function find_local_declarations()
+  local matches = {}
+  if vim.bo.filetype == 'java' then
+    matches = compass_java.find_local_declarations()
+  end
+
+  local filtered_matches = {}
+  local cur_line = vim.fn.line('.')
+  -- keep only matches up to the current row (cannot use variables
+  -- defined later on), and keep only the last one such (the same
+  -- variable name can be used multiple times in the current file, we
+  -- want the latest declaration before the current line)
+  local latest_match = nil
+  for _, match in ipairs(matches) do
+    if match.lnum <= cur_line then
+      latest_match = match
+    else
+      break
+    end
+  end
+  if latest_match ~= nil then
+    return { latest_match }
+  else
+    return {}
+  end
+end
+
 local function picker_finish(matches)
   if #matches == 0 then
     vim.notify("No matches found", vim.log.levels.ERROR)
