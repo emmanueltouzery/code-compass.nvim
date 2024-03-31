@@ -83,7 +83,7 @@ local function code_compass_picker(query, title, get_field_access_query, opts)
             line_in_result = line_in_result + 1
           elseif line_in_result == 4 then
             -- line contents? bunch of ^^^ under the proper line
-            if line:match("%^%^%^") then
+            if line:match("%^%^") then
               line_in_result = line_in_result + 1
               table.insert(matches, {
                 lnum = tonumber(lnum_str),

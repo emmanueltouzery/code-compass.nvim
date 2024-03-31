@@ -5,6 +5,24 @@ local function fix_fname_path(res)
   end
 end
 
+local function after_test5(script_path, passed, failed, after, res)
+  fix_fname_path(res)
+  local actual = vim.inspect(res)
+  print(actual)
+  local expected = vim.inspect({{
+    col = 27,
+    line = "TestEnum v = TestEnum.V1;",
+    lnum = 16,
+    path = "Test.java"
+  }})
+  if actual == expected then
+    table.insert(passed, 5)
+  else
+    table.insert(failed, 5)
+  end
+  after(passed, failed)
+end
+
 local function after_test4(script_path, passed, failed, after, res)
   fix_fname_path(res)
   local actual = vim.inspect(res)
@@ -29,7 +47,8 @@ local function after_test4(script_path, passed, failed, after, res)
   else
     table.insert(failed, 4)
   end
-  after(passed, failed)
+  vim.fn.setpos('.', {0, 8, 6, 0}) -- '>V1<,'
+  require'code_compass'.find_references({matches_callback = function(res) after_test5(script_path, passed, failed, after, res) end})
 end
 
 local function after_test3(script_path, passed, failed, after, res)
