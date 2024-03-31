@@ -126,6 +126,11 @@ rule:
 
       inside:
         kind: object_creation_expression
+
+    - pattern: #word#
+
+      inside:
+        kind: field_access
   ]]
   return references_pattern:gsub('#word#', word)
 end
