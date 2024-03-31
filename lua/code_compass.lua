@@ -1,4 +1,5 @@
 local compass_java = require('java.compass_java')
+local tests = require('tests.tests')
 
 local function find_buf_for_fname(fname)
   for i, bufnr in pairs(vim.api.nvim_list_bufs()) do
@@ -60,7 +61,7 @@ local function picker_finish(matches)
   end
 end
 
-local function code_compass_picker(query, title, get_field_access_query)
+local function code_compass_picker(query, title, get_field_access_query, opts)
   local cwd = vim.fn.getcwd()
   local line_in_result = 1
   local fname, lnum_str, col_str
@@ -112,15 +113,19 @@ local function code_compass_picker(query, title, get_field_access_query)
         -- i don't like to check that too early, because i could grab
         -- a field on a completely unrelated class.. but if nothing else
         -- worked, let's try this now
-        code_compass_picker(find_field_access_query(), title, nil)
+        code_compass_picker(get_field_access_query(), title, nil, opts)
         return
       end
-      picker_finish(matches)
+      if opts ~= nil and opts.matches_callback ~= nil then
+        opts.matches_callback(matches)
+      else
+        picker_finish(matches)
+      end
     end)
   })
 end
 
-local function find_references()
+local function find_references(opts)
   local word = vim.fn.expand('<cword>')
 
   local query = nil
@@ -133,11 +138,11 @@ local function find_references()
   if query ~= nil then
     -- pre-filter the files to process with rg for speed
     code_compass_picker([[ast-grep scan --inline-rules ']] .. query
-      ..  [[' $(rg -l ]] .. word .. [[ . | tr '\n' ' ')]], "References", get_field_access_query)
+      ..  [[' $(rg -l ]] .. word .. [[ . | tr '\n' ' ')]], "References", get_field_access_query, opts)
   end
 end
 
-local function find_definition()
+local function find_definition(opts)
   local word = vim.fn.expand('<cword>')
 
   local query = nil
@@ -150,7 +155,7 @@ local function find_definition()
   if query ~= nil then
     -- pre-filter the files to process with rg for speed
     code_compass_picker([[ast-grep scan --inline-rules ']] .. query
-      ..  [[' $(rg -l ]] .. word .. [[ . | tr '\n' ' ')]], "Definitions", get_field_access_query)
+      ..  [[' $(rg -l ]] .. word .. [[ . | tr '\n' ' ')]], "Definitions", get_field_access_query, opts)
   end
 end
 
@@ -158,4 +163,5 @@ end
 return {
   find_references = find_references,
   find_definition = find_definition,
+  run_tests = tests.run_tests,
 }
