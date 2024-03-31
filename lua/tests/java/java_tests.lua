@@ -11,10 +11,65 @@ local function tests_end(passed, failed)
   end
 end
 
+local function after_test6(script_path, passed, failed, res)
+  res[1]['fname'] = nil
+  res[1]['path'] = res[1].path:gmatch("[^/]+$")()
+  local actual = vim.inspect(res)
+  local expected = vim.inspect({{
+    col = 21,
+    line = "lic static int MY_CONST = 16;",
+    lnum = 3,
+    path = "Test2.java"
+  }})
+  if actual == expected then
+    table.insert(passed, 6)
+  else
+    table.insert(failed, 6)
+  end
+  tests_end(passed, failed)
+end
+
+local function after_test5(script_path, passed, failed, res)
+  res[1]['fname'] = nil
+  res[1]['path'] = res[1].path:gmatch("[^/]+$")()
+  local actual = vim.inspect(res)
+  local expected = vim.inspect({{
+    col = 14,
+    line = "ublic class Test2 {",
+    lnum = 1,
+    path = "Test2.java"
+  }})
+  if actual == expected then
+    table.insert(passed, 5)
+  else
+    table.insert(failed, 5)
+  end
+  vim.fn.setpos('.', {0, 10, 43, 0}) -- 'Test2.>MY_CONST<'
+  require'code_compass'.find_definition({matches_callback = function(res) after_test6(script_path, passed, failed, res) end})
+end
+
+local function after_test4(script_path, passed, failed, res)
+  res[1]['fname'] = nil
+  res[1]['path'] = res[1].path:gmatch("[^/]+$")()
+  local actual = vim.inspect(res)
+  local expected = vim.inspect({{
+    col = 15,
+    line = "lic void function1() {}",
+    lnum = 5,
+    path = "Test2.java"
+  }})
+  if actual == expected then
+    table.insert(passed, 4)
+  else
+    table.insert(failed, 4)
+  end
+  vim.fn.setpos('.', {0, 15, 11, 0}) -- 'new >Test2<()'
+  require'code_compass'.find_definition({matches_callback = function(res) after_test5(script_path, passed, failed, res) end})
+end
+
 local function after_test3(script_path, passed, failed, res)
   res[1]['fname'] = nil
   local actual = vim.inspect(res)
-  print(actual)
   local expected = vim.inspect({{
     bufnr = 0,
     col = 19,
@@ -27,7 +82,8 @@ local function after_test3(script_path, passed, failed, res)
   else
     table.insert(failed, 3)
   end
-  tests_end(passed, failed)
+  vim.fn.setpos('.', {0, 15, 24, 0}) -- '.>function1<()'
+  require'code_compass'.find_definition({matches_callback = function(res) after_test4(script_path, passed, failed, res) end})
 end
 
 local function after_test2(script_path, passed, failed, res)
