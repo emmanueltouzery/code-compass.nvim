@@ -11,6 +11,43 @@ local function tests_end(passed, failed)
   end
 end
 
+local function after_test8(script_path, passed, failed, res)
+  res[1]['fname'] = nil
+  res[1]['path'] = res[1].path:gmatch("[^/]+$")()
+  local actual = vim.inspect(res)
+  local expected = vim.inspect({{
+    col = 17,
+    line = "  public String transformString(String input) {",
+    lnum = 12,
+    path = "Test2.java"
+  }})
+  if actual == expected then
+    table.insert(passed, 8)
+  else
+    table.insert(failed, 8)
+  end
+  tests_end(passed, failed)
+end
+
+local function after_test7(script_path, passed, failed, res)
+  res[1]['fname'] = nil
+  res[1]['path'] = res[1].path:gmatch("[^/]+$")()
+  local actual = vim.inspect(res)
+  local expected = vim.inspect({{
+    col = 15,
+    line = "  public enum TestEnum {",
+    lnum = 7,
+    path = "Test2.java"
+  }})
+  if actual == expected then
+    table.insert(passed, 7)
+  else
+    table.insert(failed, 7)
+  end
+  vim.fn.setpos('.', {0, 22, 52, 0}) -- 'Test2::>transformString<'
+  require'code_compass'.find_definition({matches_callback = function(res) after_test8(script_path, passed, failed, res) end})
+end
+
 local function after_test6(script_path, passed, failed, res)
   res[1]['fname'] = nil
   res[1]['path'] = res[1].path:gmatch("[^/]+$")()
@@ -26,7 +63,8 @@ local function after_test6(script_path, passed, failed, res)
   else
     table.insert(failed, 6)
   end
-  tests_end(passed, failed)
+  vim.fn.setpos('.', {0, 16, 8, 0}) -- '>TestEnum< v'
+  require'code_compass'.find_definition({matches_callback = function(res) after_test7(script_path, passed, failed, res) end})
 end
 
 local function after_test5(script_path, passed, failed, res)
@@ -35,7 +73,7 @@ local function after_test5(script_path, passed, failed, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
     col = 14,
-    line = "ublic class Test2 {",
+    line = "public class Test2 {",
     lnum = 1,
     path = "Test2.java"
   }})

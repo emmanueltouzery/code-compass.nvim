@@ -13,5 +13,16 @@ public class Test {
 
   private void action() {
     (new Test2()).function1();
+    TestEnum v = TestEnum.V1;
+  }
+
+  public static int MY_CONST = 16;
+
+  private String testMethodRef() {
+    Arrays.asList("a", "b").forEach(Test2::transformString);
+  }
+
+  public String transformString(String input) {
+    return input + "/";
   }
 }
