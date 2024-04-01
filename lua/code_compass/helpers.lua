@@ -27,7 +27,7 @@ end
 local function run_and_parse_ast_grep(word, query, title, opts, run_finish)
   local cwd = vim.fn.getcwd()
   local line_in_result = 1
-  local fname, lnum_str, col_str
+  local fname, lnum_str, col_str, query_name
   local matches = {}
   -- pre-filter the files to process with rg for speed
   local command = [[ast-grep scan --inline-rules ']] .. query
@@ -39,7 +39,9 @@ local function run_and_parse_ast_grep(word, query, title, opts, run_finish)
       for _, line in ipairs(output) do
         if #line > 0 then
           if line_in_result == 1 then
-            -- help[query], skip
+            if line:match("^help%[") then
+              query_name = line:gsub("^help%[", ""):gsub("%]: ", "")
+            end
             line_in_result = line_in_result + 1
           elseif line_in_result == 2 then
             fname, lnum_str, col_str = line:gmatch("%.([^:]+):([^:]+):([^:]+)")()
@@ -56,12 +58,14 @@ local function run_and_parse_ast_grep(word, query, title, opts, run_finish)
                 col = tonumber(col_str),
                 path = cwd .. '/' .. fname,
                 fname = fname,
-                line = line_contents
+                line = line_contents,
+                query_name = query_name
               })
             else
               line_contents = str_sub(line, 7):gsub("╭", "")
             end
           elseif line:match("help%[") then
+            query_name = line:gsub("^help%[", ""):gsub("%]: ", "")
             line_in_result = 2
           end
         end

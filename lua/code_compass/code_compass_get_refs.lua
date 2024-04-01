@@ -25,12 +25,14 @@ local function picker_finish(matches)
       separator = " ",
       items = {
         { width = 35, },
+        { width = 9, },
         { remaining = true },
       },
     }
     local make_display = function(entry)
       return displayer {
         { Str.truncate(entry.path, 35, "…", -1), "TelescopeResultsIdentifier" },
+        { entry.query_name },
         { entry.line, "Special" },
       }
     end
@@ -62,6 +64,45 @@ local function find_references(opts)
 
   if query ~= nil then
     helpers.run_and_parse_ast_grep(word, query, "References", opts, function(matches)
+      table.sort(matches, function(m1, m2)
+        if m2.query_name > m1.query_name then
+          return true
+        end
+        if m2.query_name < m1.query_name then
+          return false
+        end
+        if m2.path > m1.path then
+          return true
+        end
+        if m2.path < m1.path then
+          return false
+        end
+        if m2.fname > m1.fname then
+          return true
+        end
+        if m2.fname < m1.fname then
+          return false
+        end
+        if m2.lnum > m1.lnum then
+          return true
+        end
+        if m2.lnum < m1.lnum then
+          return false
+        end
+        if m2.col > m1.col then
+          return true
+        end
+        if m2.col < m1.col then
+          return false
+        end
+        if m2.line > m1.line then
+          return true
+        end
+        if m2.line < m1.line then
+          return false
+        end
+        return false
+      end)
       if opts ~= nil and opts.matches_callback ~= nil then
         opts.matches_callback(matches)
       else

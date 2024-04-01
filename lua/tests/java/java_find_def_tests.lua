@@ -32,7 +32,8 @@ local function after_test11(script_path, passed, failed, after, res)
     col = 14,
     line = "public class ClassOne {",
     lnum = 3,
-    path = "PackageOneClassOne.java"
+    path = "PackageOneClassOne.java",
+    query_name = "query",
   }})
   if actual == expected then
     table.insert(passed, 11)
@@ -51,7 +52,8 @@ local function after_test10(script_path, passed, failed, after, res)
     col = 17,
     line = "   public String transformString(String input) {",
     lnum = 27,
-    path = "Test.java"
+    path = "Test.java",
+    query_name = "query",
   }})
   if actual == expected then
     table.insert(passed, 10)
@@ -71,7 +73,8 @@ local function after_test9(script_path, passed, failed, after, res)
     col = 18,
     line = "private String field;",
     lnum = 7,
-    path = "Test.java"
+    path = "Test.java",
+    query_name = "query",
   }})
   if actual == expected then
     table.insert(passed, 9)
@@ -89,7 +92,8 @@ local function after_test8(script_path, passed, failed, after, res)
     col = 17,
     line = "   public String transformString(String input) {",
     lnum = 12,
-    path = "Test2.java"
+    path = "Test2.java",
+    query_name = "query",
   }})
   if actual == expected then
     table.insert(passed, 8)
@@ -107,7 +111,8 @@ local function after_test7(script_path, passed, failed, after, res)
     col = 15,
     line = "   public enum TestEnum {",
     lnum = 7,
-    path = "Test2.java"
+    path = "Test2.java",
+    query_name = "query",
   }})
   if actual == expected then
     table.insert(passed, 7)
@@ -125,7 +130,8 @@ local function after_test6(script_path, passed, failed, after, res)
     col = 21,
     line = "public static int MY_CONST = 16;",
     lnum = 3,
-    path = "Test2.java"
+    path = "Test2.java",
+    query_name = "query",
   }})
   if actual == expected then
     table.insert(passed, 6)
@@ -143,7 +149,8 @@ local function after_test5(script_path, passed, failed, after, res)
     col = 14,
     line = " public class Test2 {",
     lnum = 1,
-    path = "Test2.java"
+    path = "Test2.java",
+    query_name = "query",
   }})
   if actual == expected then
     table.insert(passed, 5)
@@ -161,7 +168,8 @@ local function after_test4(script_path, passed, failed, after, res)
     col = 15,
     line = "public void function1() {}",
     lnum = 5,
-    path = "Test2.java"
+    path = "Test2.java",
+    query_name = "query",
   }})
   if actual == expected then
     table.insert(passed, 4)

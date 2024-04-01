@@ -2,7 +2,7 @@ import com.example.External;
 import package1.ClassOne;
 import java.util.Arrays;
 
-public class Test {
+public class Test extends Test2 {
 
   private String field;
 
