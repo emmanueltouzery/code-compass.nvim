@@ -115,15 +115,28 @@ local function get_definition_field_access(ts_node, parent1)
           stopBy:
             kind: field_declaration
           kind: field_declaration
+      is-enum-field:
+        inside:
+          stopBy:
+            kind: enum_constant
+          kind: enum_constant
 
     rule:
-      pattern: #fieldName#
-      matches: is-field-identifier
-      inside:
-        stopBy:
-          kind: class_declaration
-        has:
-          pattern: #className#
+      any:
+        - pattern: #fieldName#
+          matches: is-field-identifier
+          inside:
+            stopBy:
+              kind: class_declaration
+            has:
+              pattern: #className#
+        - pattern: #fieldName#
+          matches: is-enum-field
+          inside:
+            stopBy:
+              kind: enum_declaration
+            has:
+              pattern: #className#
   ]]
   return find_definition_field_def_pattern:gsub('#fieldName#', fieldName):gsub('#className#', fieldOwner)
 end

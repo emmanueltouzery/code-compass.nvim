@@ -5,6 +5,25 @@ local function fix_fname_path(res)
   end
 end
 
+local function after_test16(script_path, passed, failed, after, res)
+  fix_fname_path(res)
+  local actual = vim.inspect(res)
+  local expected = vim.inspect(
+  {{
+    col = 5,
+    line = "  V1,",
+    lnum = 8,
+    path = "Test2.java",
+    query_name = "query"
+  }})
+  if actual == expected then
+    table.insert(passed, 16)
+  else
+    table.insert(failed, 16)
+  end
+  after(passed, failed)
+end
+
 local function after_test15(script_path, passed, failed, after, res)
   fix_fname_path(res)
   local actual = vim.inspect(res)
@@ -21,7 +40,8 @@ local function after_test15(script_path, passed, failed, after, res)
   else
     table.insert(failed, 15)
   end
-  after(passed, failed)
+  vim.fn.setpos('.', {0, 18, 27, 0}) -- 'TestEnum.>V1<'
+  require'code_compass'.find_definition({matches_callback = function(res) after_test16(script_path, passed, failed, after, res) end})
 end
 
 local function after_test14(script_path, passed, failed, after, res)
