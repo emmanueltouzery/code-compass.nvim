@@ -44,3 +44,5 @@ Two functions are exported:
 - `require('code_compass').find_references()` -- find code references to the symbol under the cursor
 
 Note that a third function, `run_tests` is also exported, meant for diagnostics and developers.
+
+The plugin expects that you set the folder to the root folder of the project (using something like [vim-rooter](https://github.com/airblade/vim-rooter) for instance.
