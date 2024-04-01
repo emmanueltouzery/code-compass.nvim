@@ -45,6 +45,12 @@ local function after_test4(script_path, passed, failed, after, res)
     path = "Test.java",
     query_name = "field"
   }, {
+    col = 46,
+    line = " private List<Integer> vals = Arrays.asList(Test2.MY_CONST);",
+    lnum = 43,
+    path = "Test.java",
+    query_name = "field"
+  }, {
     col = 44,
     line = "blic class Test extends Test2 implements Test2 {",
     lnum = 5,
@@ -85,6 +91,12 @@ local function after_test3(script_path, passed, failed, after, res)
     col = 39,
     line = "   External var = new External(Test2.MY_CONST);",
     lnum = 12,
+    path = "Test.java",
+    query_name = "use"
+  }, {
+    col = 52,
+    line = " private List<Integer> vals = Arrays.asList(Test2.MY_CONST);",
+    lnum = 43,
     path = "Test.java",
     query_name = "use"
   }, {

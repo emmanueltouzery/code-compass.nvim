@@ -116,10 +116,17 @@ local function get_definition_field_access(ts_node, parent1)
 
     utils:
       is-field-identifier:
-        inside:
-          stopBy:
-            kind: field_declaration
-          kind: field_declaration
+        all:
+          - inside:
+              stopBy:
+                kind: field_declaration
+              kind: field_declaration
+          - inside:
+              stopBy:
+                kind: variable_declarator
+              has:
+                field: name
+                pattern: #fieldName#
       is-enum-field:
         inside:
           stopBy:

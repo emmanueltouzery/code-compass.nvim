@@ -39,4 +39,6 @@ public class Test extends Test2 implements Test2 {
     Test2 myVar = new Test2();
     myVar.transformString("te");
   }
+
+  private List<Integer> vals = Arrays.asList(Test2.MY_CONST);
 }
