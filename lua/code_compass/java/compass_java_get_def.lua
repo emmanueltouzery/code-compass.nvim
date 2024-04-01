@@ -222,7 +222,7 @@ local function get_definition_query()
     return get_definition_method_reference(ts_node, parent1)
   elseif parent1:type() == "method_reference" and ts_node:prev_sibling() == nil then
     return get_definition_type(parent1)
-  elseif parent1:type() == "field_access" then
+  elseif parent1:type() == "field_access" and ts_node:prev_sibling() ~= nil then
     return get_definition_field_access(ts_node, parent1)
   elseif parent1:type() == "object_creation_expression" or ts_node:type() == "type_identifier" then
     return get_definition_type(parent1)
