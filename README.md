@@ -4,11 +4,11 @@
 
 A set of functions to navigate code without LSP.
 
-Code Compass leverages `tree-sitter`, `ripgrep` and [https://ast-grep.github.io/](ast-grep) (which is also tree-sitter based) to offer "go to definition" and "find references" code navigation features.
+Code Compass leverages `tree-sitter`, `ripgrep` and [ast-grep](https://ast-grep.github.io/) (which is also tree-sitter based) to offer "go to definition" and "find references" code navigation features.
 
 If multiple candidates are found, the list will open in `telescope.nvim` to allow you to preview them and pick one.
 
-You can install `ast-grep` using [https://github.com/williamboman/mason.nvim](mason.nvim).
+You can install `ast-grep` using [mason.nvim](https://github.com/williamboman/mason.nvim).
 
 A "naive" implementation could support all languages and have results similar to tags-based implementations, but we're trying to be more ambitious.
 
