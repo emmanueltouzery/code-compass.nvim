@@ -128,8 +128,7 @@ local function get_definition_field_access(ts_node, parent1)
   return find_definition_field_def_pattern:gsub('#fieldName#', fieldName):gsub('#className#', fieldOwner)
 end
 
-local function get_definition_type_no_package()
-  local word = vim.fn.expand('<cword>')
+local function get_definition_type_no_package(word)
   local find_def_pattern = [[
     id: query
     language: Java
@@ -152,9 +151,16 @@ local function get_definition_type_no_package()
     return find_def_pattern:gsub('#word#', word)
 end
 
-local function get_definition_type()
+local function get_definition_type(parent1)
   local bufnr = 0
   local word = vim.fn.expand('<cword>')
+
+  if word == "this" then
+    -- replace by the current class name
+    local bufnr = vim.api.nvim_win_get_buf(0)
+    word = ts_node_get_classname(bufnr, parent1)
+  end
+
   -- if it's a class, let's try to discriminate through package imports
   local q = vim.treesitter.query.parse("java", [[
 (import_declaration
@@ -173,7 +179,7 @@ local function get_definition_type()
       :gsub("." .. word, "")
   end
   if package_statement == nil then
-    return get_definition_type_no_package()
+    return get_definition_type_no_package(word)
   end
   local find_def_pattern = [[
     id: query
@@ -215,11 +221,11 @@ local function get_definition_query()
   if parent1:type() == "method_reference" and ts_node:prev_sibling() ~= nil then
     return get_definition_method_reference(ts_node, parent1)
   elseif parent1:type() == "method_reference" and ts_node:prev_sibling() == nil then
-    return get_definition_type()
+    return get_definition_type(parent1)
   elseif parent1:type() == "field_access" then
     return get_definition_field_access(ts_node, parent1)
   elseif parent1:type() == "object_creation_expression" or ts_node:type() == "type_identifier" then
-    return get_definition_type()
+    return get_definition_type(parent1)
   else
     return get_default_query()
   end
