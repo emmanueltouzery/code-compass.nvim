@@ -63,7 +63,7 @@ local function find_references(opts)
   end
 
   if query ~= nil then
-    helpers.run_and_parse_ast_grep(word, query, opts, function(matches)
+    helpers.run_and_parse_ast_grep(word, {query}, opts, function(matches)
       table.sort(matches, function(m1, m2)
         if m2.query_name > m1.query_name then
           return true

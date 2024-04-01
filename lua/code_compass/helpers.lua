@@ -24,13 +24,13 @@ local function find_buf_for_fname(fname)
   return nil
 end
 
-local function run_and_parse_ast_grep(word, query, opts, run_finish)
+local function run_and_parse_ast_grep(word, queries, opts, run_finish)
   local cwd = vim.fn.getcwd()
   local line_in_result = 1
   local fname, lnum_str, col_str, query_name
   local matches = {}
   -- pre-filter the files to process with rg for speed
-  local command = [[ast-grep scan --inline-rules ']] .. query
+  local command = [[ast-grep scan --inline-rules ']] .. queries[1]
       ..  [[' $(rg -l ]] .. word .. [[ . | tr '\n' ' ')]]
   vim.fn.jobstart(command, {
     cwd = cwd,
@@ -72,7 +72,13 @@ local function run_and_parse_ast_grep(word, query, opts, run_finish)
       end
     end),
     on_exit = vim.schedule_wrap(function(j, output)
-      run_finish(matches)
+      if #matches == 0 and #queries > 1 then
+        -- try the next possible query
+        table.remove(queries, 1)
+        run_and_parse_ast_grep(word, queries, opts, run_finish)
+      else
+        run_finish(matches)
+      end
     end)
   })
 end

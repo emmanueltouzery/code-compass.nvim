@@ -88,13 +88,18 @@ local function get_definition_method_reference(ts_node, parent1)
         has:
           pattern: #className#
   ]]
-  return find_method_reference_def_pattern:gsub('#methodName#', methodName):gsub('#className#', className)
+  return {
+    find_method_reference_def_pattern:gsub('#methodName#', methodName):gsub('#className#', className),
+    get_default_query()
+  }
 end
 
 local function get_definition_field_access(ts_node, parent1)
   -- it could be a static field access, Class.FIELD, or a non-static instance.FIELD.
   -- treesitter doesn't know. Let's optimistically try Class.FIELD. If it is in fact
-  -- instance.field, then we'll catch that with find_field_access() as a final fallback.
+  -- and instance field, we expect it should be a local field of the current class,
+  -- and it'll be covered by the local declarations final fallback, and finally as
+  -- a worst-case, by get_field_access_query()
   local fieldName = vim.fn.expand('<cword>')
   local row1, col1, row2, col2 = ts_node:prev_sibling():prev_sibling():range()
   local bufnr = vim.api.nvim_win_get_buf(0)
@@ -138,7 +143,48 @@ local function get_definition_field_access(ts_node, parent1)
             has:
               pattern: #className#
   ]]
-  return find_definition_field_def_pattern:gsub('#fieldName#', fieldName):gsub('#className#', fieldOwner)
+  -- no defaulting to default queries here: this is field access,
+  -- let's not search fields by name across the entire codebase,
+  -- let's default to only the current file (locals) by default
+  return {find_definition_field_def_pattern:gsub('#fieldName#', fieldName):gsub('#className#', fieldOwner)}
+end
+
+local function get_definition_method_invocation(ts_node, parent1)
+  -- it could be a static field access, Class.FIELD, or a non-static instance.FIELD.
+  -- treesitter doesn't know. Let's optimistically try Class.FIELD.
+  local methodName = vim.fn.expand('<cword>')
+  local row1, col1, row2, col2 = ts_node:prev_sibling():prev_sibling():range()
+  local bufnr = vim.api.nvim_win_get_buf(0)
+  local fieldOwner = vim.api.nvim_buf_get_text(bufnr, row1, col1, row2, col2, {})[1]
+
+  if fieldOwner == "this" then
+    -- replace by the current class name
+    fieldOwner = ts_node_get_classname(bufnr, parent1)
+  end
+
+  local find_definition_method_def_pattern = [[
+    id: query
+    language: Java
+
+    utils:
+      is-method-identifier:
+        inside:
+          kind: method_declaration
+
+    rule:
+      any:
+        - pattern: #methodName#
+          matches: is-method-identifier
+          inside:
+            stopBy:
+              kind: class_declaration
+            has:
+              pattern: #className#
+  ]]
+  return {
+    find_definition_method_def_pattern:gsub('#methodName#', methodName):gsub('#className#', fieldOwner),
+    get_default_query()
+  }
 end
 
 local function get_definition_type_no_package(word)
@@ -192,7 +238,7 @@ local function get_definition_type(parent1)
       :gsub("." .. word, "")
   end
   if package_statement == nil then
-    return get_definition_type_no_package(word)
+    return {get_definition_type_no_package(word), get_default_query()}
   end
   local find_def_pattern = [[
     id: query
@@ -224,10 +270,13 @@ local function get_definition_type(parent1)
           inside:
             kind: enum_declaration
     ]]
-    return find_def_pattern:gsub('#package#', package_statement):gsub('#word#', word)
+    return {
+      find_def_pattern:gsub('#package#', package_statement):gsub('#word#', word),
+      get_default_query()
+    }
 end
 
-local function get_definition_query()
+local function get_definition_queries()
   local ts_utils = require("nvim-treesitter.ts_utils")
   local ts_node = ts_utils.get_node_at_cursor()
   local parent1 = ts_node:parent()
@@ -237,15 +286,17 @@ local function get_definition_query()
     return get_definition_type(parent1)
   elseif parent1:type() == "field_access" and ts_node:prev_sibling() ~= nil then
     return get_definition_field_access(ts_node, parent1)
+  elseif parent1:type() == "method_invocation" and ts_node:prev_sibling() ~= nil then
+    return get_definition_method_invocation(ts_node, parent1)
   elseif parent1:type() == "object_creation_expression" or ts_node:type() == "type_identifier" then
     return get_definition_type(parent1)
   else
-    return get_default_query()
+    return {get_default_query()}
   end
 end
 
 return {
   get_field_access_query = get_field_access_query,
-  get_definition_query = get_definition_query,
+  get_definition_queries = get_definition_queries,
   find_local_declarations = locals.find_local_declarations,
 }

@@ -33,6 +33,12 @@ local function after_test4(script_path, passed, failed, after, res)
     path = "Test.java",
     query_name = "create"
   }, {
+    col = 23,
+    line = "   Test2 myVar = new Test2();",
+    lnum = 39,
+    path = "Test.java",
+    query_name = "create"
+  }, {
     col = 33,
     line = "   External var = new External(Test2.MY_CONST);",
     lnum = 12,
@@ -121,6 +127,12 @@ local function after_test1(script_path, passed, failed, after, res)
     lnum = 34,
     path = "Test.java",
     query_name = "invocatn",
+  }, {
+    col = 11,
+    line = '   myVar.transformString("te");',
+    lnum = 40,
+    path = "Test.java",
+    query_name = "invocatn"
   }, {
     col = 44,
     line = '   Arrays.asList("a", "b").forEach(Test2::transformString);',

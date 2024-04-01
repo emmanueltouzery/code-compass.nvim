@@ -98,7 +98,13 @@ local function run_finish(matches, opts)
     -- a field on a completely unrelated class.. but if nothing else
     -- worked, let's try this now
     local word = vim.fn.expand('<cword>')
-    helpers.run_and_parse_ast_grep(word, get_field_access_query(), opts, picker_finish)
+    helpers.run_and_parse_ast_grep(word, {get_field_access_query()}, opts, function(matches)
+      if opts ~= nil and opts.matches_callback ~= nil then
+        opts.matches_callback(matches)
+      else
+        picker_finish(matches)
+      end
+    end)
     return
   end
   if opts ~= nil and opts.matches_callback ~= nil then
@@ -113,11 +119,11 @@ local function find_definition(opts)
 
   local query = nil
   if vim.bo.filetype == 'java' then
-    query = compass_java_get_def.get_definition_query()
+    queries = compass_java_get_def.get_definition_queries()
   end
 
-  if query ~= nil then
-    helpers.run_and_parse_ast_grep(word, query, opts, function(res) run_finish(res, opts) end)
+  if queries ~= nil and #queries > 0 then
+    helpers.run_and_parse_ast_grep(word, queries, opts, function(res) run_finish(res, opts) end)
   end
 end
 

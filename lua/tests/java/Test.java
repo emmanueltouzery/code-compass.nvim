@@ -35,5 +35,8 @@ public class Test extends Test2 implements Test2 {
     ClassOne val = new ClassOne();
   }
 
-  private static void Test2() {}
+  private static void Test2() {
+    Test2 myVar = new Test2();
+    myVar.transformString("te");
+  }
 }
