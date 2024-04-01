@@ -212,8 +212,10 @@ local function get_definition_query()
   local ts_utils = require("nvim-treesitter.ts_utils")
   local ts_node = ts_utils.get_node_at_cursor()
   local parent1 = ts_node:parent()
-  if parent1:type() == "method_reference" then
+  if parent1:type() == "method_reference" and ts_node:prev_sibling() ~= nil then
     return get_definition_method_reference(ts_node, parent1)
+  elseif parent1:type() == "method_reference" and ts_node:prev_sibling() == nil then
+    return get_definition_type()
   elseif parent1:type() == "field_access" then
     return get_definition_field_access(ts_node, parent1)
   elseif parent1:type() == "object_creation_expression" or ts_node:type() == "type_identifier" then
