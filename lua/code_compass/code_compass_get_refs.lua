@@ -59,11 +59,11 @@ local function find_references(opts)
 
   local query = nil
   if vim.bo.filetype == 'java' then
-    query = compass_java_get_refs.get_references_query()
+    queries = compass_java_get_refs.get_references_queries()
   end
 
-  if query ~= nil then
-    helpers.run_and_parse_ast_grep(word, {query}, opts, function(matches)
+  if queries ~= nil and #queries > 0 then
+    helpers.run_and_parse_ast_grep(word, queries, opts, function(matches)
       table.sort(matches, function(m1, m2)
         if m2.query_name > m1.query_name then
           return true

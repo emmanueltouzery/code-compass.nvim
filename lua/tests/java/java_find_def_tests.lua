@@ -1,7 +1,7 @@
 local function fix_fname_path(res)
   for _, v in ipairs(res) do
     v['fname'] = nil
-    v['path'] = res[1].path:gmatch("[^/]+$")()
+    v['path'] = v.path:gmatch("[^/]+$")()
   end
 end
 
@@ -19,7 +19,7 @@ local function after_test18(script_path, passed, failed, after, res)
     col = 17,
     line = "   public String transformString(String input) {",
     lnum = 27,
-    path = "Test2.java",
+    path = "Test.java",
     query_name = "query"
   }})
   if actual == expected then

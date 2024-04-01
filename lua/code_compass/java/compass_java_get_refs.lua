@@ -1,5 +1,4 @@
-local function get_references_query()
-  local word = vim.fn.expand('<cword>')
+local function get_default_query(word)
   local references_pattern = [[
 id: invocatn
 language: Java
@@ -64,10 +63,43 @@ rule:
           kind: super_interfaces
         kind: super_interfaces
     - regex: #word#
-  ]] -- using regex for inheritance is crappy, i'd have expected pattern to work but it doesn't.
+  ]] -- using regex for inheritance+implement is crappy, i'd have expected pattern to work but it doesn't.
   return references_pattern:gsub('#word#', word)
 end
 
+-- more lenient for variables, to catch more cases
+-- the not is to make sure we don't catch declarations
+-- of variables by that name (we only want references)
+local function get_variable_queries(word)
+  local references_pattern = [[
+id: use
+language: Java
+rule:
+  all:
+    - kind: identifier
+    - pattern: #word#
+    - not:
+        inside:
+          kind: variable_declarator
+          has:
+            field: name
+            pattern: #word#
+  ]] -- using regex for inheritance+implement is crappy, i'd have expected pattern to work but it doesn't.
+  return {references_pattern:gsub('#word#', word), get_default_query(word)}
+end
+
+local function get_references_queries()
+  local word = vim.fn.expand('<cword>')
+  local ts_utils = require("nvim-treesitter.ts_utils")
+  local ts_node = ts_utils.get_node_at_cursor()
+  local parent1 = ts_node:parent()
+  if parent1:type() == "variable_declarator" then
+    return get_variable_queries(word)
+  else
+    return {get_default_query(word)}
+  end
+end
+
 return {
-  get_references_query = get_references_query,
+  get_references_queries = get_references_queries,
 }

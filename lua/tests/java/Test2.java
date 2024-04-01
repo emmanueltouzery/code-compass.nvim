@@ -10,7 +10,7 @@ public class Test2 {
   }
 
   public String transformString(String input) {
-    int localVar = 6;
+    int localVar = MY_CONST;
     return input + "/";
   }
 

@@ -1,7 +1,7 @@
 local function fix_fname_path(res)
   for _, v in ipairs(res) do
     v['fname'] = nil
-    v['path'] = res[1].path:gmatch("[^/]+$")()
+    v['path'] = v.path:gmatch("[^/]+$")()
   end
 end
 
@@ -79,15 +79,20 @@ local function after_test4(script_path, passed, failed, after, res)
 end
 
 local function after_test3(script_path, passed, failed, after, res)
-  res[1]['fname'] = nil
-  res[1]['path'] = res[1].path:gmatch("[^/]+$")()
+  fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
     col = 39,
     line = "   External var = new External(Test2.MY_CONST);",
     lnum = 12,
     path = "Test.java",
-    query_name = "field",
+    query_name = "use"
+  }, {
+    col = 20,
+    line = "   int localVar = MY_CONST;",
+    lnum = 13,
+    path = "Test2.java",
+    query_name = "use"
   }})
   if actual == expected then
     table.insert(passed, 3)
@@ -99,8 +104,7 @@ local function after_test3(script_path, passed, failed, after, res)
 end
 
 local function after_test2(script_path, passed, failed, after, res)
-  res[1]['fname'] = nil
-  res[1]['path'] = res[1].path:gmatch("[^/]+$")()
+  fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
     col = 19,
