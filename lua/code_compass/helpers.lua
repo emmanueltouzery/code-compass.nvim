@@ -24,7 +24,7 @@ local function find_buf_for_fname(fname)
   return nil
 end
 
-local function run_and_parse_ast_grep(word, query, title, opts, run_finish)
+local function run_and_parse_ast_grep(word, query, opts, run_finish)
   local cwd = vim.fn.getcwd()
   local line_in_result = 1
   local fname, lnum_str, col_str, query_name

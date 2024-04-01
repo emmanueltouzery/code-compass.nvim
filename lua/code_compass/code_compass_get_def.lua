@@ -36,7 +36,7 @@ local function picker_finish(matches)
     end
 
     pickers.new(opts, {
-      prompt_title = title,
+      prompt_title = "Definitions",
       finder = finders.new_table {
         results = matches,
         entry_maker = function(entry)
@@ -98,7 +98,7 @@ local function run_finish(matches, opts)
     -- a field on a completely unrelated class.. but if nothing else
     -- worked, let's try this now
     local word = vim.fn.expand('<cword>')
-    helpers.run_and_parse_ast_grep(word, get_field_access_query(), title, opts, picker_finish)
+    helpers.run_and_parse_ast_grep(word, get_field_access_query(), opts, picker_finish)
     return
   end
   if opts ~= nil and opts.matches_callback ~= nil then
@@ -117,7 +117,7 @@ local function find_definition(opts)
   end
 
   if query ~= nil then
-    helpers.run_and_parse_ast_grep(word, query, "Definitions", opts, function(res) run_finish(res, opts) end)
+    helpers.run_and_parse_ast_grep(word, query, opts, function(res) run_finish(res, opts) end)
   end
 end
 
