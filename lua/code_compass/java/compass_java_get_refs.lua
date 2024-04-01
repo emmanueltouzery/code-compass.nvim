@@ -52,6 +52,18 @@ rule:
           kind: superclass
         kind: superclass
     - regex: #word#
+
+---
+id: implemnt
+language: Java
+rule:
+  all:
+    - kind: type_identifier
+      inside:
+        stopBy:
+          kind: super_interfaces
+        kind: super_interfaces
+    - regex: #word#
   ]] -- using regex for inheritance is crappy, i'd have expected pattern to work but it doesn't.
   return references_pattern:gsub('#word#', word)
 end

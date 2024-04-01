@@ -26,7 +26,6 @@ end
 local function after_test4(script_path, passed, failed, after, res)
   fix_fname_path(res)
   local actual = vim.inspect(res)
-  print(actual)
   local expected = vim.inspect({{
     col = 10,
     line = "   (new Test2()).function1();",
@@ -40,8 +39,14 @@ local function after_test4(script_path, passed, failed, after, res)
     path = "Test.java",
     query_name = "field"
   }, {
+    col = 44,
+    line = "blic class Test extends Test2 implements Test2 {",
+    lnum = 5,
+    path = "Test.java",
+    query_name = "implemnt"
+  }, {
     col = 27,
-    line = "blic class Test extends Test2 {",
+    line = "blic class Test extends Test2 implements Test2 {",
     lnum = 5,
     path = "Test.java",
     query_name = "inherit"

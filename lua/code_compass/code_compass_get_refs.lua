@@ -43,7 +43,7 @@ local function picker_finish(matches)
         results = matches,
         entry_maker = function(entry)
           entry.name = entry.fname
-          entry.ordinal = entry.fname
+          entry.ordinal = entry.query_name .. " " .. entry.fname .. " " .. entry.line
           entry.display = make_display
           return entry
         end,
