@@ -41,4 +41,9 @@ public class Test extends Test2 implements Test2 {
   }
 
   private List<Integer> vals = Arrays.asList(Test2.MY_CONST);
+  private int anyName = 0;
+
+  private void modif() {
+    this.anyName++;
+  }
 }

@@ -67,6 +67,30 @@ rule:
   return references_pattern:gsub('#word#', word)
 end
 
+local function get_method_queries(word)
+  local references_pattern = [[
+id: invocatn
+language: Java
+rule:
+  any:
+    - pattern: #word#
+
+      inside:
+        kind: method_invocation
+---
+id: meth_ref
+language: Java
+rule:
+  any:
+    - pattern: #word#
+
+      inside:
+        kind: method_reference
+
+  ]]
+  return {references_pattern:gsub('#word#', word)}
+end
+
 -- more lenient for variables, to catch more cases
 -- the not is to make sure we don't catch declarations
 -- of variables by that name (we only want references)
@@ -95,6 +119,8 @@ local function get_references_queries()
   local parent1 = ts_node:parent()
   if parent1:type() == "variable_declarator" then
     return get_variable_queries(word)
+  elseif parent1:type() == "method_declaration" then
+    return get_method_queries(word)
   else
     return {get_default_query(word)}
   end
