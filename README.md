@@ -26,6 +26,22 @@ References will also list and allow you to filter on the type of reference, for 
 
 The performance is very good thanks to ripgrep pre-filtering the files for `ast-grep`, and then `ast-grep` being very optimised itself. I've tested this on larger codebases without performance issues.
 
+## Compared to...
+
+### LSP
+
+- can be hard to set up (for java for instance)
+- can be slow and memory hungry
+- offers much more than just navigation in the source
+
+### Ctags
+
+- ctags only offer go to definition afaik, not find references.
+- Gnu global also supports find references, but... only supports a few languages (including java out of the box, and c++ with some python plugin though).
+- doesn't take into account local variables
+- must be refreshed regularly as the source changes
+- doesn't take into account the context at the spot where you search from. With ctags your search for "myFunction" for instance. But I code-compass knows the tree sitter context of where you're searching from. For instance, it's "this:: myFunction", or it's "MyClass::myFunction" and you're importing "com.class.MyClass" at the top of the file.
+
 ## Installation
 
 The plugin depends upon:
@@ -45,4 +61,4 @@ Two functions are exported:
 
 Note that a third function, `run_tests` is also exported, meant for diagnostics and developers.
 
-The plugin expects that you set the folder to the root folder of the project (using something like [vim-rooter](https://github.com/airblade/vim-rooter) for instance.
+The plugin expects that you set the folder to the root folder of the project (using something like [vim-rooter](https://github.com/airblade/vim-rooter) for instance).
