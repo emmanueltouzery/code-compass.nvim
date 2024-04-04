@@ -72,11 +72,11 @@ local function get_method_queries(word)
 id: invocatn
 language: Java
 rule:
-  any:
-    - pattern: #word#
-
-      inside:
-        kind: method_invocation
+    inside:
+      kind: method_invocation
+    pattern: #word#
+    precedes:
+      kind: argument_list
 ---
 id: meth_ref
 language: Java

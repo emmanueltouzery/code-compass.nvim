@@ -8,7 +8,6 @@ end
 local function after_test6(script_path, passed, failed, after, res)
   fix_fname_path(res)
   local actual = vim.inspect(res)
-  print(actual)
   local expected = vim.inspect({{
     col = 5,
     line = "   anyName();",
@@ -167,6 +166,12 @@ local function after_test1(script_path, passed, failed, after, res)
     col = 11,
     line = '   myVar.transformString("te");',
     lnum = 40,
+    path = "Test.java",
+    query_name = "invocatn"
+  }, {
+    col = 21,
+    line = "   transformString.transformString();",
+    lnum = 48,
     path = "Test.java",
     query_name = "invocatn"
   }, {
