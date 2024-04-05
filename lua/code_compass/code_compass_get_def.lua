@@ -125,6 +125,9 @@ local function find_definition(opts)
 
   if queries ~= nil and #queries > 0 then
     helpers.run_and_parse_ast_grep(word, queries, opts, function(res) run_finish(res, opts) end)
+  else
+    -- no query, try locals
+    run_finish(find_local_declarations(), opts)
   end
 end
 

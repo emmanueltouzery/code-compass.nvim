@@ -295,6 +295,16 @@ local function get_definition_queries()
     return get_definition_field_access(ts_node, parent1)
   elseif parent1:type() == "method_invocation" and ts_node:prev_sibling() ~= nil then
     return get_definition_method_invocation(ts_node, parent1)
+  elseif parent1:type() == "method_invocation" and ts_node:prev_sibling() == nil then
+    -- it could be a class if it's a static method call, or a local variable presumably
+    if vim.fn.expand('<cword>'):sub(1, 1):match('[A-Z]') then
+      -- capitalized => assume class
+      return get_definition_type(parent1)
+    else
+      -- assume local
+      return nil
+    end
+    return get_definition_method_invocation(ts_node, parent1)
   elseif parent1:type() == "object_creation_expression" or ts_node:type() == "type_identifier" then
     return get_definition_type(parent1)
   else
