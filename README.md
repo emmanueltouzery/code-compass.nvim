@@ -61,4 +61,16 @@ Two functions are exported:
 
 Note that a third function, `run_tests` is also exported, meant for diagnostics and developers.
 
+You can set buffer-level shortcuts to the shortcuts you normally use for LSP:
+
+```lua
+-- override LSP for java, not using LSP there
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "java",
+  callback=function(ev)
+    vim.keymap.set('n', 'gd', ":lua require'code_compass'.find_definition()<cr>", {desc="code-compass jump to definition", silent=true, buffer=0})
+    vim.keymap.set('n', 'gr', ":lua require'code_compass'.find_references()<cr>", {desc="code-compass find references", silent=true, buffer=0})
+  end})
+```
+
 The plugin expects that you set the folder to the root folder of the project (using something like [vim-rooter](https://github.com/airblade/vim-rooter) for instance).
