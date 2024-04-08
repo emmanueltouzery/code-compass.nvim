@@ -59,14 +59,11 @@ local function get_default_query()
   return find_def_pattern:gsub('#word#', word)
 end
 
-local function get_definition_method_reference(ts_node, parent1)
-  -- this is a method reference Class::method, and the cursor is on the method
+local function get_definition_method_reference_classname(className, parent1)
   local methodName = vim.fn.expand('<cword>')
-  local row1, col1, row2, col2 = ts_node:prev_sibling():prev_sibling():range()
-  local bufnr = vim.api.nvim_win_get_buf(0)
-  local className = vim.api.nvim_buf_get_text(bufnr, row1, col1, row2, col2, {})[1]
   if className == "this" then
     -- replace by the current class name
+    local bufnr = vim.api.nvim_win_get_buf(0)
     className = ts_node_get_classname(bufnr, parent1)
   end
 
@@ -90,8 +87,18 @@ local function get_definition_method_reference(ts_node, parent1)
   ]]
   return {
     find_method_reference_def_pattern:gsub('#methodName#', methodName):gsub('#className#', className),
+    -- get_default_query() as fallback because maybe we inherit and the definition is in a superclass
     get_default_query()
   }
+end
+
+local function get_definition_method_reference(ts_node, parent1)
+  -- this is a method reference Class::method, and the cursor is on the method
+  local methodName = vim.fn.expand('<cword>')
+  local row1, col1, row2, col2 = ts_node:prev_sibling():prev_sibling():range()
+  local bufnr = vim.api.nvim_win_get_buf(0)
+  local className = vim.api.nvim_buf_get_text(bufnr, row1, col1, row2, col2, {})[1]
+  return get_definition_method_reference_classname(className, ts_node)
 end
 
 local function get_definition_field_access(ts_node, parent1)
@@ -190,6 +197,7 @@ local function get_definition_method_invocation(ts_node, parent1)
   ]]
   return {
     find_definition_method_def_pattern:gsub('#methodName#', methodName):gsub('#className#', fieldOwner),
+    -- get_default_query() as fallback because maybe we inherit and the definition is in a superclass
     get_default_query()
   }
 end
@@ -295,7 +303,16 @@ local function get_definition_queries()
     return get_definition_field_access(ts_node, parent1)
   elseif parent1:type() == "method_invocation" and ts_node:prev_sibling() ~= nil then
     return get_definition_method_invocation(ts_node, parent1)
-  elseif parent1:type() == "method_invocation" and ts_node:prev_sibling() == nil then
+  elseif parent1:type() == "method_invocation"
+      and ts_node:prev_sibling() == nil
+      and ts_node:next_sibling():type() == "argument_list" then
+    -- [X]()
+    -- presumably a method of the current class.. could also be inherited so let's allow other files
+    return  get_definition_method_reference_classname("this", ts_node)
+  elseif parent1:type() == "method_invocation"
+      and ts_node:prev_sibling() == nil
+      and ts_node:next_sibling():type() ~= "argument_list" then
+    -- [X].method()
     -- it could be a class if it's a static method call, or a local variable presumably
     if vim.fn.expand('<cword>'):sub(1, 1):match('[A-Z]') then
       -- capitalized => assume class

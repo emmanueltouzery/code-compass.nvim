@@ -46,5 +46,6 @@ public class Test extends Test2 implements Test2 {
   private void modif(Test2 transformString) {
     this.anyName++;
     transformString.transformString();
+    testMethodRefThis();
   }
 }
