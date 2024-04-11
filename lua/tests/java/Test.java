@@ -47,5 +47,6 @@ public class Test extends Test2 implements Test2 {
     this.anyName++;
     transformString.transformString();
     testMethodRefThis();
+    return field;
   }
 }

@@ -5,10 +5,28 @@ local function fix_fname_path(res)
   end
 end
 
+local function after_test22(script_path, passed, failed, after, res)
+  fix_fname_path(res)
+  local actual = vim.inspect(res)
+  local expected = vim.inspect(
+  {{
+    bufnr = 0,
+    col = 17,
+    line = "  private String field;",
+    lnum = 7,
+    path = "Test.java"
+  }})
+  if actual == expected then
+    table.insert(passed, 22)
+  else
+    table.insert(failed, 22)
+  end
+  after(passed, failed)
+end
+
 local function after_test21(script_path, passed, failed, after, res)
   fix_fname_path(res)
   local actual = vim.inspect(res)
-  print(actual)
   local expected = vim.inspect(
   {{
     col = 18,
@@ -22,7 +40,8 @@ local function after_test21(script_path, passed, failed, after, res)
   else
     table.insert(failed, 21)
   end
-  after(passed, failed)
+  vim.fn.setpos('.', {0, 50, 16, 0}) -- 'return >field<;'
+  require'code_compass'.find_definition({matches_callback = function(res) after_test22(script_path, passed, failed, after, res) end})
 end
 
 

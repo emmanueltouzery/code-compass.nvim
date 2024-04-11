@@ -18,5 +18,6 @@ public class Test2 {
   private String field;
 
   public void anyName() {
+    return this.field;
   }
 }
