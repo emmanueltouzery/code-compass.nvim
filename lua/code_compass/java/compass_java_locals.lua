@@ -1,7 +1,8 @@
 local function add_captures(bufnr, start_line, iter, matches)
   for _capture, node, _metadata in iter do
     local row1, col1, row2, col2 = node:range()
-    local type = node:parent():parent():type()
+    local p1 = node:parent()
+    local type = p1 and p1:parent() and p1:parent():type()
     -- fields can be declared before the scope start
     if type == "field_declaration" or row1 >= start_line then
       table.insert(matches, {
