@@ -1,4 +1,5 @@
 local locals = require("code_compass.java.compass_java_locals")
+local helpers = require('code_compass.helpers')
 
 local function get_field_access_query()
   local word = vim.fn.expand('<cword>')
@@ -291,24 +292,112 @@ local function get_definition_type(parent1)
     }
 end
 
-local function get_definition_queries()
+local function constructors(class_name)
+  local ctor_pattern = [[
+    id: ctor
+    language: Java
+    rule:
+        inside:
+           kind: constructor_declaration
+        pattern: #word#
+  ]]
+  return {
+    ctor_pattern:gsub('#word#', class_name),
+    get_default_query()
+  }
+end
+
+local function run_finish(matches, opts)
+  if #matches == 0 then
+    -- couldn't find global declarations, could be a local variable
+    -- or a field of the current class
+    matches = locals.find_local_declarations()
+  end
+  local get_field_access_query = nil
+  if #matches == 0 then
+    if vim.bo.filetype == 'java' then
+      get_field_access_query = compass_java_get_def.get_field_access_query
+    end
+  end
+  if #matches == 0 and get_field_access_query ~= nil then
+    -- still couldn't find anything. it could be accessing a field on
+    -- another class (for instance a public final field)
+    -- i don't like to check that too early, because i could grab
+    -- a field on a completely unrelated class.. but if nothing else
+    -- worked, let's try this now
+    local word = vim.fn.expand('<cword>')
+    helpers.run_and_parse_ast_grep(word, {get_field_access_query()}, opts, function(matches)
+      if opts ~= nil and opts.matches_callback ~= nil then
+        opts.matches_callback(matches)
+      else
+        helpers.picker_finish(matches)
+      end
+    end)
+    return
+  end
+  if opts ~= nil and opts.matches_callback ~= nil then
+    opts.matches_callback(matches)
+  else
+    helpers.picker_finish(matches)
+  end
+end
+
+local function queries_with_local_fallback(queries, word, opts)
+  if queries ~= nil and #queries > 0 then
+    helpers.run_and_parse_ast_grep(word, queries, opts, function(res) run_finish(res, opts) end)
+  else
+    -- no query, try locals
+    run_finish(locals.find_local_declarations(), opts)
+  end
+end
+
+local function constructor_invocation(parent1, opts)
+  local parent = parent1
+  while parent ~= nil and parent:type() ~= "class_declaration" do
+    parent = parent:parent()
+  end
+  if parent ~= nil then
+    for node in parent:iter_children() do
+      if node:type() == "superclass" then
+        for child_node in node:iter_children() do
+          if child_node:type() == "type_identifier" then
+            local row1, col1, row2, col2 = child_node:range()
+            superclass = vim.api.nvim_buf_get_text(0, row1, col1, row2, col2, {})[1]
+            helpers.run_and_parse_ast_grep(superclass, constructors(superclass), opts, function(res)
+              if #res > 0 then
+                run_finish(res, opts)
+              else
+                -- couldn't find a constructor in the whole project. Assume the parent class is
+                -- provided by a dependency and search for the import statement.
+                run_finish(locals.find_import(superclass), opts)
+              end
+            end)
+          end
+        end
+      end
+    end
+  end
+end
+
+local function get_definition(opts)
+  local word = vim.fn.expand('<cword>')
   local ts_utils = require("nvim-treesitter.ts_utils")
   local ts_node = ts_utils.get_node_at_cursor()
   local parent1 = ts_node:parent()
   if parent1:type() == "method_reference" and ts_node:prev_sibling() ~= nil then
-    return get_definition_method_reference(ts_node, parent1)
+     queries_with_local_fallback(get_definition_method_reference(ts_node, parent1), word, opts)
   elseif parent1:type() == "method_reference" and ts_node:prev_sibling() == nil then
-    return get_definition_type(parent1)
+    queries_with_local_fallback(get_definition_type(parent1), word, opts)
   elseif parent1:type() == "field_access" and ts_node:prev_sibling() ~= nil then
-    return get_definition_field_access(ts_node, parent1)
+    queries_with_local_fallback(get_definition_field_access(ts_node, parent1), word, opts)
   elseif parent1:type() == "method_invocation" and ts_node:prev_sibling() ~= nil then
-    return get_definition_method_invocation(ts_node, parent1)
+    queries_with_local_fallback(get_definition_method_invocation(ts_node, parent1), word, opts)
   elseif parent1:type() == "method_invocation"
       and ts_node:prev_sibling() == nil
       and ts_node:next_sibling():type() == "argument_list" then
     -- [X]()
     -- presumably a method of the current class.. could also be inherited so let's allow other files
-    return  get_definition_method_reference_classname("this", ts_node)
+    queries_with_local_fallback(get_definition_method_reference_classname("this", ts_node), word, opts)
   elseif parent1:type() == "method_invocation"
       and ts_node:prev_sibling() == nil
       and ts_node:next_sibling():type() ~= "argument_list" then
@@ -316,21 +405,21 @@ local function get_definition_queries()
     -- it could be a class if it's a static method call, or a local variable presumably
     if vim.fn.expand('<cword>'):sub(1, 1):match('[A-Z]') then
       -- capitalized => assume class
-      return get_definition_type(parent1)
+      queries_with_local_fallback(get_definition_type(parent1), word, opts)
     else
       -- assume local
-      return nil
+      queries_with_local_fallback(nil, word, opts)
     end
-    return get_definition_method_invocation(ts_node, parent1)
   elseif parent1:type() == "object_creation_expression" or ts_node:type() == "type_identifier" then
-    return get_definition_type(parent1)
+    queries_with_local_fallback(get_definition_type(parent1), word, opts)
+  elseif parent1:type() == "explicit_constructor_invocation" and ts_node:type() == "super" then
+    constructor_invocation(parent1, opts)
   else
-    return {get_default_query()}
+    queries_with_local_fallback({get_default_query()}, word, opts)
   end
 end
 
 return {
   get_field_access_query = get_field_access_query,
-  get_definition_queries = get_definition_queries,
-  find_local_declarations = locals.find_local_declarations,
+  get_definition = get_definition,
 }

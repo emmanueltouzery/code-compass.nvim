@@ -5,6 +5,46 @@ local function fix_fname_path(res)
   end
 end
 
+local function after_test24(script_path, passed, failed, after, res)
+  fix_fname_path(res)
+  local actual = vim.inspect(res)
+  local expected = vim.inspect(
+  {{
+    bufnr = 0,
+    col = 19,
+    line = "import com.example.External;",
+    lnum = 1,
+    path = "Test.java"
+  }})
+  if actual == expected then
+    table.insert(passed, 24)
+  else
+    table.insert(failed, 24)
+  end
+  after(passed, failed)
+end
+
+
+local function after_test23(script_path, passed, failed, after, res)
+  fix_fname_path(res)
+  local actual = vim.inspect(res)
+  local expected = vim.inspect(
+  {{
+    col = 10,
+    line = " public Test2() {}",
+    lnum = 24,
+    path = "Test2.java",
+    query_name = "ctor"
+  }})
+  if actual == expected then
+    table.insert(passed, 23)
+  else
+    table.insert(failed, 23)
+  end
+  vim.fn.setpos('.', {0, 59, 10, 0}) -- '>super<();'
+  require'code_compass'.find_definition({matches_callback = function(res) after_test24(script_path, passed, failed, after, res) end})
+end
+
 local function after_test22(script_path, passed, failed, after, res)
   fix_fname_path(res)
   local actual = vim.inspect(res)
@@ -21,7 +61,8 @@ local function after_test22(script_path, passed, failed, after, res)
   else
     table.insert(failed, 22)
   end
-  after(passed, failed)
+  vim.fn.setpos('.', {0, 54, 6, 0}) -- '>super<();'
+  require'code_compass'.find_definition({matches_callback = function(res) after_test23(script_path, passed, failed, after, res) end})
 end
 
 local function after_test21(script_path, passed, failed, after, res)

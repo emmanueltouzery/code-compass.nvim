@@ -49,4 +49,14 @@ public class Test extends Test2 implements Test2 {
     testMethodRefThis();
     return field;
   }
+
+  public Test() {
+    super();
+  }
+
+  static class Inner extends External {
+    public Inner() {
+      super();
+    }
+  }
 }

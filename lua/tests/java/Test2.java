@@ -20,4 +20,6 @@ public class Test2 {
   public void anyName() {
     return this.field;
   }
+
+  public Test2() {}
 }

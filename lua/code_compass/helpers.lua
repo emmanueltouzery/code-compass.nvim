@@ -83,8 +83,61 @@ local function run_and_parse_ast_grep(word, queries, opts, run_finish)
   })
 end
 
+local function picker_finish(matches)
+  if #matches == 0 then
+    vim.notify("No matches found", vim.log.levels.ERROR)
+  elseif #matches == 1 then
+    vim.cmd[[normal! m']] -- save the position for jump history
+    local fbuf = matches[1].bufnr or find_buf_for_fname(matches[1].path)
+    if fbuf ~= nil then
+      vim.api.nvim_win_set_buf(0, fbuf)
+    else
+      vim.cmd(":e " .. matches[1].path)
+    end
+    vim.fn.setpos('.', {0, matches[1].lnum, matches[1].col+1, 0})
+    vim.cmd[[ norm! zz]]
+  else
+    local pickers = require "telescope.pickers"
+    local finders = require "telescope.finders"
+    local conf = require("telescope.config").values
+    local entry_display = require("telescope.pickers.entry_display")
+    local Str = require'plenary.strings'
+    local opts = {}
+
+    local displayer = entry_display.create {
+      separator = " ",
+      items = {
+        { width = 35, },
+        { remaining = true },
+      },
+    }
+    local make_display = function(entry)
+      return displayer {
+        { Str.truncate(entry.path, 35, "…", -1), "TelescopeResultsIdentifier" },
+        { entry.line, "Special" },
+      }
+    end
+
+    pickers.new(opts, {
+      prompt_title = "Definitions",
+      finder = finders.new_table {
+        results = matches,
+        entry_maker = function(entry)
+          entry.name = entry.fname
+          entry.ordinal = entry.fname
+          entry.display = make_display
+          return entry
+        end,
+      },
+      previewer = conf.grep_previewer(opts),
+      sorter = conf.generic_sorter(opts),
+    }):find()
+  end
+end
+
 return {
   str_sub = str_sub,
   find_buf_for_fname = find_buf_for_fname,
   run_and_parse_ast_grep = run_and_parse_ast_grep,
+  picker_finish = picker_finish,
 }

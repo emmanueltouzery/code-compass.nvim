@@ -46,7 +46,7 @@ local function attempt_import_declaration_java(syntax_tree, bufnr, matches, word
   return matches
 end
 
-local function find_local_declarations()
+local function find_all_local_declarations()
   local word = vim.fn.expand('<cword>')
   local bufnr = 0
 
@@ -88,6 +88,41 @@ local function find_local_declarations()
   end
 end
 
+local function find_local_declarations()
+  local matches = find_all_local_declarations()
+
+  local filtered_matches = {}
+  local cur_line = vim.fn.line('.')
+  -- keep only matches up to the current row (cannot use variables
+  -- defined later on), and keep only the last one such (the same
+  -- variable name can be used multiple times in the current file, we
+  -- want the latest declaration before the current line)
+  local latest_match = nil
+  for _, match in ipairs(matches) do
+    if match.lnum <= cur_line then
+      latest_match = match
+    else
+      break
+    end
+  end
+  if latest_match ~= nil then
+    return { latest_match }
+  else
+    return {}
+  end
+end
+
+
+
+local function find_import(class_name, opts)
+  local bufnr = 0
+  local matches = {}
+  local parser = require('nvim-treesitter.parsers').get_parser(bufnr, "java")
+  local syntax_tree = parser:parse()[1]
+  return attempt_import_declaration_java(syntax_tree, bufnr, matches, class_name)
+end
+
 return {
   find_local_declarations = find_local_declarations,
+  find_import = find_import,
 }
