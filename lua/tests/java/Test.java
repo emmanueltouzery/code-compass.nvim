@@ -57,6 +57,7 @@ public class Test extends Test2 implements Test2 {
   static class Inner extends External {
     public Inner() {
       super();
+    Arrays.asList("a", "b").forEach(Test2::new);
     }
   }
 }

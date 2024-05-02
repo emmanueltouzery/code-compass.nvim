@@ -5,6 +5,36 @@ local function fix_fname_path(res)
   end
 end
 
+local function after_test7(script_path, passed, failed, after, res)
+  fix_fname_path(res)
+  local actual = vim.inspect(res)
+  local expected = vim.inspect({{
+    col = 10,
+    line = "   (new Test2()).function1();",
+    lnum = 17,
+    path = "Test.java",
+    query_name = "create"
+  }, {
+    col = 23,
+    line = "   Test2 myVar = new Test2();",
+    lnum = 39,
+    path = "Test.java",
+    query_name = "create"
+  }, {
+    col = 37,
+    line = '   Arrays.asList("a", "b").forEach(Test2::new);',
+    lnum = 60,
+    path = "Test.java",
+    query_name = "create"
+  }})
+  if actual == expected then
+    table.insert(passed, 7)
+  else
+    table.insert(failed, 7)
+  end
+  after(passed, failed)
+end
+
 local function after_test6(script_path, passed, failed, after, res)
   fix_fname_path(res)
   local actual = vim.inspect(res)
@@ -20,7 +50,8 @@ local function after_test6(script_path, passed, failed, after, res)
   else
     table.insert(failed, 6)
   end
-  after(passed, failed)
+  vim.fn.setpos('.', {0, 24, 13, 0}) -- 'public >Test2<('
+  require'code_compass'.find_references({matches_callback = function(res) after_test7(script_path, passed, failed, after, res) end})
 end
 
 local function after_test5(script_path, passed, failed, after, res)
@@ -55,6 +86,12 @@ local function after_test4(script_path, passed, failed, after, res)
     col = 23,
     line = "   Test2 myVar = new Test2();",
     lnum = 39,
+    path = "Test.java",
+    query_name = "create"
+  }, {
+    col = 37,
+    line = '   Arrays.asList("a", "b").forEach(Test2::new);',
+    lnum = 60,
     path = "Test.java",
     query_name = "create"
   }, {

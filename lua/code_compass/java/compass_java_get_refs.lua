@@ -1,3 +1,22 @@
+local function get_create_queries(word)
+  local create_pattern = [[
+id: create
+language: Java
+rule:
+  any:
+    - pattern:
+        context: new #word#($$PARAMS)
+        selector: type_identifier
+
+      inside:
+        kind: object_creation_expression
+    - pattern:
+        context: #word#::new
+        selector: method_reference
+  ]]
+  return {create_pattern:gsub('#word#', word)}
+end
+
 local function get_default_query(word)
   local references_pattern = [[
 id: invocatn
@@ -12,11 +31,16 @@ rule:
 id: meth_ref
 language: Java
 rule:
-  any:
+  all:
     - pattern: #word#
 
       inside:
         kind: method_reference
+    - not:
+        inside:
+          pattern:
+            context: #word#::new
+            selector: method_reference
 
 ---
 id: create
@@ -29,6 +53,9 @@ rule:
 
       inside:
         kind: object_creation_expression
+    - pattern:
+        context: #word#::new
+        selector: method_reference
 
 ---
 id: field
@@ -81,11 +108,15 @@ rule:
 id: meth_ref
 language: Java
 rule:
-  any:
+  all:
     - pattern: #word#
 
       inside:
         kind: method_reference
+    - not:
+        pattern:
+          context: #word#::new
+          selector: method_reference
 
   ]]
   return {references_pattern:gsub('#word#', word)}
@@ -121,6 +152,8 @@ local function get_references_queries()
     return get_variable_queries(word)
   elseif parent1:type() == "method_declaration" then
     return get_method_queries(word)
+  elseif parent1:type() == "constructor_declaration" then
+    return get_create_queries(word)
   else
     return {get_default_query(word)}
   end
