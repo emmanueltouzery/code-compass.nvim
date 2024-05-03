@@ -56,60 +56,56 @@ local function picker_finish(matches)
 end
 
 local function find_references(opts)
-  local word = vim.fn.expand('<cword>')
 
-  local query = nil
-  if vim.bo.filetype == 'java' then
-    queries = compass_java_get_refs.get_references_queries()
+  local callback = function(matches)
+    table.sort(matches, function(m1, m2)
+      if m2.query_name > m1.query_name then
+        return true
+      end
+      if m2.query_name < m1.query_name then
+        return false
+      end
+      if m2.path > m1.path then
+        return true
+      end
+      if m2.path < m1.path then
+        return false
+      end
+      if m2.fname > m1.fname then
+        return true
+      end
+      if m2.fname < m1.fname then
+        return false
+      end
+      if m2.lnum > m1.lnum then
+        return true
+      end
+      if m2.lnum < m1.lnum then
+        return false
+      end
+      if m2.col > m1.col then
+        return true
+      end
+      if m2.col < m1.col then
+        return false
+      end
+      if m2.line > m1.line then
+        return true
+      end
+      if m2.line < m1.line then
+        return false
+      end
+      return false
+    end)
+    if opts ~= nil and opts.matches_callback ~= nil then
+      opts.matches_callback(matches)
+    else
+      picker_finish(matches)
+    end
   end
 
-  if queries ~= nil and #queries > 0 then
-    helpers.run_and_parse_ast_grep(word, queries, opts, function(matches)
-      table.sort(matches, function(m1, m2)
-        if m2.query_name > m1.query_name then
-          return true
-        end
-        if m2.query_name < m1.query_name then
-          return false
-        end
-        if m2.path > m1.path then
-          return true
-        end
-        if m2.path < m1.path then
-          return false
-        end
-        if m2.fname > m1.fname then
-          return true
-        end
-        if m2.fname < m1.fname then
-          return false
-        end
-        if m2.lnum > m1.lnum then
-          return true
-        end
-        if m2.lnum < m1.lnum then
-          return false
-        end
-        if m2.col > m1.col then
-          return true
-        end
-        if m2.col < m1.col then
-          return false
-        end
-        if m2.line > m1.line then
-          return true
-        end
-        if m2.line < m1.line then
-          return false
-        end
-        return false
-      end)
-      if opts ~= nil and opts.matches_callback ~= nil then
-        opts.matches_callback(matches)
-      else
-        picker_finish(matches)
-      end
-    end)
+  if vim.bo.filetype == 'java' then
+    queries = compass_java_get_refs.get_references(opts, callback)
   end
 end
 

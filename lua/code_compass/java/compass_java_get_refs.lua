@@ -1,3 +1,5 @@
+local helpers = require('code_compass.helpers')
+
 local function get_create_queries(word)
   local create_pattern = [[
 id: create
@@ -143,22 +145,45 @@ rule:
   return {references_pattern:gsub('#word#', word), get_default_query(word)}
 end
 
-local function get_references_queries()
+local function get_references(opts, callback)
   local word = vim.fn.expand('<cword>')
+  local bufnr = 0
   local ts_utils = require("nvim-treesitter.ts_utils")
   local ts_node = ts_utils.get_node_at_cursor()
   local parent1 = ts_node:parent()
-  if parent1:type() == "variable_declarator" then
-    return get_variable_queries(word)
+  if parent1:type() == "variable_declarator"
+      and parent1:parent():type() == "field_declaration" then
+    local modifiers = nil
+    for child in parent1:parent():iter_children() do
+      if child:type() == "modifiers" then
+        modifiers = child
+        break
+      end
+    end
+    if modifiers then
+      local row1, col1, row2, col2 = modifiers:range()
+      local modifiers_contents = vim.api.nvim_buf_get_text(bufnr, row1, col1, row2, col2, {})[1]
+      if modifiers:type() == "modifiers" and modifiers_contents == "private" then
+        -- private field, let's only keep results in the current file
+        local run_opts = { search_list = "./" .. vim.fn.expand('%') }
+        helpers.run_and_parse_ast_grep(word, get_variable_queries(word), run_opts, callback)
+      else
+        helpers.run_and_parse_ast_grep(word, get_variable_queries(word), opts, callback)
+      end
+    else
+      helpers.run_and_parse_ast_grep(word, get_variable_queries(word), opts, callback)
+    end
+  elseif parent1:type() == "variable_declarator" then
+    helpers.run_and_parse_ast_grep(word, get_variable_queries(word), opts, callback)
   elseif parent1:type() == "method_declaration" then
-    return get_method_queries(word)
+    helpers.run_and_parse_ast_grep(word, get_method_queries(word), opts, callback)
   elseif parent1:type() == "constructor_declaration" then
-    return get_create_queries(word)
+    helpers.run_and_parse_ast_grep(word, get_create_queries(word), opts, callback)
   else
-    return {get_default_query(word)}
+    helpers.run_and_parse_ast_grep(word, {get_default_query(word)}, opts, callback)
   end
 end
 
 return {
-  get_references_queries = get_references_queries,
+  get_references = get_references,
 }

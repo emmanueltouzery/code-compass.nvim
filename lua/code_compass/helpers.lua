@@ -29,9 +29,9 @@ local function run_and_parse_ast_grep(word, queries, opts, run_finish)
   local line_in_result = 1
   local fname, lnum_str, col_str, query_name
   local matches = {}
+  local search_list = (opts and opts.search_list) or ([[$(rg -l ]] .. word .. [[ . | tr '\n' ' ')]])
   -- pre-filter the files to process with rg for speed
-  local command = [[ast-grep scan --inline-rules ']] .. queries[1]
-      ..  [[' $(rg -l ]] .. word .. [[ . | tr '\n' ' ')]]
+  local command = [[ast-grep scan --inline-rules ']] .. queries[1] .. "' "  .. search_list
   vim.fn.jobstart(command, {
     cwd = cwd,
     on_stdout = vim.schedule_wrap(function(j, output)
