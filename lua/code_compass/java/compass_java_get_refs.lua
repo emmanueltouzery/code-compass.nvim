@@ -163,7 +163,7 @@ local function get_references(opts, callback)
     if modifiers then
       local row1, col1, row2, col2 = modifiers:range()
       local modifiers_contents = vim.api.nvim_buf_get_text(bufnr, row1, col1, row2, col2, {})[1]
-      if modifiers:type() == "modifiers" and modifiers_contents == "private" then
+      if modifiers:type() == "modifiers" and modifiers_contents:match("private") then
         -- private field, let's only keep results in the current file
         local run_opts = { search_list = "./" .. vim.fn.expand('%') }
         helpers.run_and_parse_ast_grep(word, get_variable_queries(word), run_opts, callback)
