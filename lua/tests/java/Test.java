@@ -60,4 +60,9 @@ public class Test extends Test2 implements Test2 {
     Arrays.asList("a", "b").forEach(Test2::new);
     }
   }
+
+  public String getTest2Field() {
+    String val = this.test3Field;
+    return test3Field;
+  }
 }

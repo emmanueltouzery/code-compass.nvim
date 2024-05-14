@@ -1,6 +1,50 @@
 local locals = require("code_compass.java.compass_java_locals")
 local helpers = require('code_compass.helpers')
 
+local function run_finish(matches, opts)
+  if #matches == 0 then
+    -- couldn't find global declarations, could be a local variable
+    -- or a field of the current class
+    matches = locals.find_local_declarations()
+  end
+  local get_field_access_query = nil
+  if #matches == 0 then
+    if vim.bo.filetype == 'java' then
+      get_field_access_query = get_field_access_query
+    end
+  end
+  if #matches == 0 and get_field_access_query ~= nil then
+    -- still couldn't find anything. it could be accessing a field on
+    -- another class (for instance a public final field)
+    -- i don't like to check that too early, because i could grab
+    -- a field on a completely unrelated class.. but if nothing else
+    -- worked, let's try this now
+    local word = vim.fn.expand('<cword>')
+    helpers.run_and_parse_ast_grep(word, {get_field_access_query()}, opts, function(matches)
+      if opts ~= nil and opts.matches_callback ~= nil then
+        opts.matches_callback(matches)
+      else
+        helpers.picker_finish(matches)
+      end
+    end)
+    return
+  end
+  if opts ~= nil and opts.matches_callback ~= nil then
+    opts.matches_callback(matches)
+  else
+    helpers.picker_finish(matches)
+  end
+end
+
+local function queries_with_local_fallback(queries, word, opts)
+  if queries ~= nil and #queries > 0 then
+    helpers.run_and_parse_ast_grep(word, queries, opts, function(res) run_finish(res, opts) end)
+  else
+    -- no query, try locals
+    run_finish(locals.find_local_declarations(), opts)
+  end
+end
+
 local function get_field_access_query()
   local word = vim.fn.expand('<cword>')
   local references_pattern = [[
@@ -102,7 +146,62 @@ local function get_definition_method_reference(ts_node, parent1)
   return get_definition_method_reference_classname(className, ts_node)
 end
 
-local function get_definition_field_access(ts_node, parent1)
+local function get_superclass(node)
+  local parent = node
+  while parent ~= nil and parent:type() ~= "class_declaration" do
+    parent = parent:parent()
+  end
+  if parent ~= nil then
+    for node in parent:iter_children() do
+      if node:type() == "superclass" then
+        for child_node in node:iter_children() do
+          if child_node:type() == "type_identifier" then
+            local row1, col1, row2, col2 = child_node:range()
+            return vim.api.nvim_buf_get_text(0, row1, col1, row2, col2, {})[1]
+          end
+        end
+      end
+    end
+  end
+  return nil
+end
+
+local function get_next_superclasses(sofar, superclass, callback)
+  local find_superclass_pattern = [[
+    id: superclass
+    language: Java
+
+    rule:
+      kind: type_identifier
+      inside:
+        kind: superclass
+        inside:
+          kind: class_declaration
+          has:
+            pattern: #className#
+  ]]
+  helpers.run_and_parse_ast_grep(superclass, {find_superclass_pattern:gsub("#className#", superclass)}, opts, function(res)
+    if #res >= 1 then
+      -- TODO could be multiple matches.. would have to loop
+      local className = helpers.str_sub(res[1].line, res[1].col+1):gmatch("([A-Z]%w+)")()
+      table.insert(sofar, className)
+      get_next_superclasses(sofar, className, callback)
+    else
+      callback(sofar)
+    end
+  end)
+end
+
+local function get_all_superclasses(node, callback)
+  local level1 = get_superclass(node)
+  if level1 == nil then
+    return {}
+  end
+  local superclasses = {level1}
+  get_next_superclasses({level1}, level1, callback)
+end
+
+local function get_definition_field_access(ts_node, parent1, opts)
   -- it could be a static field access, Class.FIELD, or a non-static instance.FIELD.
   -- treesitter doesn't know. Let's optimistically try Class.FIELD. If it is in fact
   -- and instance field, we expect it should be a local field of the current class,
@@ -158,10 +257,19 @@ local function get_definition_field_access(ts_node, parent1)
             has:
               pattern: #className#
   ]]
-  -- no defaulting to default queries here: this is field access,
-  -- let's not search fields by name across the entire codebase,
-  -- let's default to only the current file (locals) by default
-  return {find_definition_field_def_pattern:gsub('#fieldName#', fieldName):gsub('#className#', fieldOwner)}
+  get_all_superclasses(parent1, function(superclasses)
+    -- no defaulting to default queries here: this is field access,
+    -- let's not search fields by name across the entire codebase,
+    -- let's default to only the current file (locals) by default
+    local candidates = {
+      find_definition_field_def_pattern:gsub('#fieldName#', fieldName):gsub('#className#', fieldOwner),
+    }
+    for _, superclass in ipairs(superclasses) do
+      local fmt = find_definition_field_def_pattern:gsub('#fieldName#', fieldName):gsub('#className#', superclass)
+      table.insert(candidates, fmt)
+    end
+    queries_with_local_fallback(candidates, fieldName, opts)
+  end)
 end
 
 local function get_definition_method_invocation(ts_node, parent1)
@@ -307,75 +415,18 @@ local function constructors(class_name)
   }
 end
 
-local function run_finish(matches, opts)
-  if #matches == 0 then
-    -- couldn't find global declarations, could be a local variable
-    -- or a field of the current class
-    matches = locals.find_local_declarations()
-  end
-  local get_field_access_query = nil
-  if #matches == 0 then
-    if vim.bo.filetype == 'java' then
-      get_field_access_query = get_field_access_query
-    end
-  end
-  if #matches == 0 and get_field_access_query ~= nil then
-    -- still couldn't find anything. it could be accessing a field on
-    -- another class (for instance a public final field)
-    -- i don't like to check that too early, because i could grab
-    -- a field on a completely unrelated class.. but if nothing else
-    -- worked, let's try this now
-    local word = vim.fn.expand('<cword>')
-    helpers.run_and_parse_ast_grep(word, {get_field_access_query()}, opts, function(matches)
-      if opts ~= nil and opts.matches_callback ~= nil then
-        opts.matches_callback(matches)
+local function constructor_invocation(parent1, opts)
+  local superclass = get_superclass(parent1)
+  if superclass ~= nil then
+    helpers.run_and_parse_ast_grep(superclass, constructors(superclass), opts, function(res)
+      if #res > 0 then
+        run_finish(res, opts)
       else
-        helpers.picker_finish(matches)
+        -- couldn't find a constructor in the whole project. Assume the parent class is
+        -- provided by a dependency and search for the import statement.
+        run_finish(locals.find_import(superclass), opts)
       end
     end)
-    return
-  end
-  if opts ~= nil and opts.matches_callback ~= nil then
-    opts.matches_callback(matches)
-  else
-    helpers.picker_finish(matches)
-  end
-end
-
-local function queries_with_local_fallback(queries, word, opts)
-  if queries ~= nil and #queries > 0 then
-    helpers.run_and_parse_ast_grep(word, queries, opts, function(res) run_finish(res, opts) end)
-  else
-    -- no query, try locals
-    run_finish(locals.find_local_declarations(), opts)
-  end
-end
-
-local function constructor_invocation(parent1, opts)
-  local parent = parent1
-  while parent ~= nil and parent:type() ~= "class_declaration" do
-    parent = parent:parent()
-  end
-  if parent ~= nil then
-    for node in parent:iter_children() do
-      if node:type() == "superclass" then
-        for child_node in node:iter_children() do
-          if child_node:type() == "type_identifier" then
-            local row1, col1, row2, col2 = child_node:range()
-            superclass = vim.api.nvim_buf_get_text(0, row1, col1, row2, col2, {})[1]
-            helpers.run_and_parse_ast_grep(superclass, constructors(superclass), opts, function(res)
-              if #res > 0 then
-                run_finish(res, opts)
-              else
-                -- couldn't find a constructor in the whole project. Assume the parent class is
-                -- provided by a dependency and search for the import statement.
-                run_finish(locals.find_import(superclass), opts)
-              end
-            end)
-          end
-        end
-      end
-    end
   end
 end
 
@@ -389,7 +440,7 @@ local function get_definition(opts)
   elseif parent1:type() == "method_reference" and ts_node:prev_sibling() == nil then
     queries_with_local_fallback(get_definition_type(parent1), word, opts)
   elseif parent1:type() == "field_access" and ts_node:prev_sibling() ~= nil then
-    queries_with_local_fallback(get_definition_field_access(ts_node, parent1), word, opts)
+    get_definition_field_access(ts_node, parent1, opts)
   elseif parent1:type() == "method_invocation" and ts_node:prev_sibling() ~= nil then
     queries_with_local_fallback(get_definition_method_invocation(ts_node, parent1), word, opts)
   elseif parent1:type() == "method_invocation"

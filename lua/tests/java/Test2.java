@@ -1,4 +1,4 @@
-public class Test2 {
+public class Test2 extends Test3 {
 
   public static int MY_CONST = 16;
 
