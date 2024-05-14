@@ -316,7 +316,7 @@ local function run_finish(matches, opts)
   local get_field_access_query = nil
   if #matches == 0 then
     if vim.bo.filetype == 'java' then
-      get_field_access_query = compass_java_get_def.get_field_access_query
+      get_field_access_query = get_field_access_query
     end
   end
   if #matches == 0 and get_field_access_query ~= nil then
