@@ -63,6 +63,7 @@ public class Test extends Test2 implements Test2 {
 
   public String getTest2Field() {
     String val = this.test3Field;
+    test3Field.reverse();
     return test3Field;
   }
 }

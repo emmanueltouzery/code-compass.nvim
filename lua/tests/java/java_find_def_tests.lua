@@ -5,6 +5,46 @@ local function fix_fname_path(res)
   end
 end
 
+local function after_test27(script_path, passed, failed, after, res)
+  fix_fname_path(res)
+  local actual = vim.inspect(res)
+  local expected = vim.inspect(
+  {{
+    col = 20,
+    line = "protected String test3Field;",
+    lnum = 2,
+    path = "Test3.java",
+    query_name = "query"
+  }})
+  if actual == expected then
+    table.insert(passed, 27)
+  else
+    table.insert(failed, 27)
+  end
+  after(passed, failed)
+end
+
+local function after_test26(script_path, passed, failed, after, res)
+  fix_fname_path(res)
+  local actual = vim.inspect(res)
+  local expected = vim.inspect(
+  {{
+    col = 20,
+    line = "protected String test3Field;",
+    lnum = 2,
+    path = "Test3.java",
+    query_name = "query"
+  }})
+  if actual == expected then
+    table.insert(passed, 26)
+  else
+    table.insert(failed, 26)
+  end
+  vim.fn.setpos('.', {0, 67, 16, 0}) -- 'return >test3Field<;'
+  require'code_compass'.find_definition({matches_callback = function(res) after_test27(script_path, passed, failed, after, res) end})
+end
+
+
 local function after_test25(script_path, passed, failed, after, res)
   fix_fname_path(res)
   local actual = vim.inspect(res)
@@ -21,7 +61,8 @@ local function after_test25(script_path, passed, failed, after, res)
   else
     table.insert(failed, 25)
   end
-  after(passed, failed)
+  vim.fn.setpos('.', {0, 66, 11, 0}) -- '>test3Field<.reverse();'
+  require'code_compass'.find_definition({matches_callback = function(res) after_test26(script_path, passed, failed, after, res) end})
 end
 
 local function after_test24(script_path, passed, failed, after, res)
