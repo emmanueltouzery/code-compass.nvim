@@ -6,7 +6,7 @@ local function picker_finish(matches)
     vim.notify("No matches found", vim.log.levels.ERROR)
   elseif #matches == 1 then
     vim.cmd[[normal! m']] -- save the position for jump history
-    local fbuf = matches[1].bufnr or find_buf_for_fname(matches[1].path)
+    local fbuf = matches[1].bufnr or helpers.find_buf_for_fname(matches[1].path)
     if fbuf ~= nil then
       vim.api.nvim_win_set_buf(0, fbuf)
     else
