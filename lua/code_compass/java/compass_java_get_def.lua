@@ -242,7 +242,61 @@ local function get_default_query()
   return find_def_pattern:gsub('#word#', word)
 end
 
+local function get_params_count(ts_node)
+  local params = ts_node:next_named_sibling()
+  while params and params:type() ~= "argument_list" do
+    params = params:next_named_sibling()
+  end
+  if params ~= nil then
+    return params:named_child_count()
+  end
+  return 0
+end
+
+local function get_definition_method_classname(className, parent1)
+  local params_count = get_params_count(parent1)
+  local methodName = vim.fn.expand('<cword>')
+  if className == "this" then
+    -- replace by the current class name
+    local bufnr = vim.api.nvim_win_get_buf(0)
+    className = ts_node_get_classname(bufnr, parent1)
+  end
+
+  local find_method_reference_def_pattern = [[
+    id: query
+    language: Java
+
+    utils:
+      is-method-identifier:
+        inside:
+          kind: method_declaration
+
+    rule:
+      pattern: #methodName#
+      matches: is-method-identifier
+      precedes:
+        #exactChildConstraint#
+        not:
+          has: { nthChild: #paramsCountInc# }
+      inside:
+        stopBy:
+          kind: class_declaration
+        has:
+          pattern: #className#
+  ]]
+  return {
+    find_method_reference_def_pattern
+      :gsub('#exactChildConstraint#', params_count == 0 and "" or "has: { nthChild: " .. params_count .. " }")
+      :gsub('#paramsCountInc#', params_count+1)
+      :gsub('#methodName#', methodName)
+      :gsub('#className#', className),
+    -- get_default_query() as fallback because maybe we inherit and the definition is in a superclass
+    get_default_query()
+  }
+end
+
 local function get_definition_method_reference_classname(className, parent1)
+  local params_count = get_params_count(parent1)
   local methodName = vim.fn.expand('<cword>')
   if className == "this" then
     -- replace by the current class name
@@ -285,14 +339,7 @@ local function get_definition_method_reference(ts_node, parent1)
 end
 
 local function get_definition_method_invocation(ts_node, parent1)
-  local params = ts_node:next_named_sibling()
-  while params and params:type() ~= "argument_list" do
-    params = params:next_named_sibling()
-  end
-  local params_count = nil
-  if params ~= nil then
-    params_count = params:named_child_count()
-  end
+  local params_count = get_params_count(ts_node)
   -- it could be a static field access, Class.FIELD, or a non-static instance.FIELD.
   -- treesitter doesn't know. Let's optimistically try Class.FIELD.
   local methodName = vim.fn.expand('<cword>')
@@ -477,7 +524,7 @@ local function get_definition(opts)
       and ts_node:next_sibling():type() == "argument_list" then
     -- [X]()
     -- presumably a method of the current class.. could also be inherited so let's allow other files
-    queries_with_local_fallback(get_definition_method_reference_classname("this", ts_node), word, opts)
+    queries_with_local_fallback(get_definition_method_classname("this", ts_node), word, opts)
   elseif parent1:type() == "method_invocation"
       and ts_node:prev_sibling() == nil
       and ts_node:next_sibling():type() ~= "argument_list" then

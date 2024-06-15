@@ -71,4 +71,15 @@ public class Test extends Test2 implements Test2 {
     Test2.overloaded();
     Test2.overloaded("test");
   }
+
+  public void testOverloaded() {
+  }
+
+  public void testOverloaded(String p) {
+  }
+
+  public void extraTests() {
+    testOverloaded();
+    testOverloaded("test");
+  }
 }
