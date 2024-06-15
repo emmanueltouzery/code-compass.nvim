@@ -66,4 +66,9 @@ public class Test extends Test2 implements Test2 {
     test3Field.reverse();
     return test3Field;
   }
+
+  public void moreTests() {
+    Test2.overloaded();
+    Test2.overloaded("test");
+  }
 }

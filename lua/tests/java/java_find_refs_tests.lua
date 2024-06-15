@@ -144,6 +144,18 @@ local function after_test4(script_path, passed, failed, after, res)
     path = "Test.java",
     query_name = "invocatn"
   }, {
+    col = 5,
+    line = "   Test2.overloaded();",
+    lnum = 71,
+    path = "Test.java",
+    query_name = "invocatn"
+  }, {
+    col = 5,
+    line = '   Test2.overloaded("test");',
+    lnum = 72,
+    path = "Test.java",
+    query_name = "invocatn"
+  }, {
     col = 37,
     line = '   Arrays.asList("a", "b").forEach(Test2::transformString);',
     lnum = 24,

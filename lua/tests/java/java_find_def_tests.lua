@@ -5,6 +5,45 @@ local function fix_fname_path(res)
   end
 end
 
+local function after_test29(script_path, passed, failed, after, res)
+  fix_fname_path(res)
+  local actual = vim.inspect(res)
+  local expected = vim.inspect(
+  {{
+    col = 15,
+    line = " public void overloaded(String param) { }",
+    lnum = 28,
+    path = "Test2.java",
+    query_name = "query"
+  }})
+  if actual == expected then
+    table.insert(passed, 29)
+  else
+    table.insert(failed, 29)
+  end
+  after(passed, failed)
+end
+
+local function after_test28(script_path, passed, failed, after, res)
+  fix_fname_path(res)
+  local actual = vim.inspect(res)
+  local expected = vim.inspect(
+  {{
+    col = 15,
+    line = " public void overloaded() { }",
+    lnum = 26,
+    path = "Test2.java",
+    query_name = "query"
+  }})
+  if actual == expected then
+    table.insert(passed, 28)
+  else
+    table.insert(failed, 28)
+  end
+  vim.fn.setpos('.', {0, 72, 14, 0}) -- 'Test2.>overloaded<("test");'
+  require'code_compass'.find_definition({matches_callback = function(res) after_test29(script_path, passed, failed, after, res) end})
+end
+
 local function after_test27(script_path, passed, failed, after, res)
   fix_fname_path(res)
   local actual = vim.inspect(res)
@@ -21,7 +60,8 @@ local function after_test27(script_path, passed, failed, after, res)
   else
     table.insert(failed, 27)
   end
-  after(passed, failed)
+  vim.fn.setpos('.', {0, 71, 14, 0}) -- 'Test2.>overloaded<();'
+  require'code_compass'.find_definition({matches_callback = function(res) after_test28(script_path, passed, failed, after, res) end})
 end
 
 local function after_test26(script_path, passed, failed, after, res)

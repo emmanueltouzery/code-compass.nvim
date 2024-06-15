@@ -285,6 +285,14 @@ local function get_definition_method_reference(ts_node, parent1)
 end
 
 local function get_definition_method_invocation(ts_node, parent1)
+  local params = ts_node:next_named_sibling()
+  while params and params:type() ~= "argument_list" do
+    params = params:next_named_sibling()
+  end
+  local params_count = nil
+  if params ~= nil then
+    params_count = params:named_child_count()
+  end
   -- it could be a static field access, Class.FIELD, or a non-static instance.FIELD.
   -- treesitter doesn't know. Let's optimistically try Class.FIELD.
   local methodName = vim.fn.expand('<cword>')
@@ -310,6 +318,10 @@ local function get_definition_method_invocation(ts_node, parent1)
       any:
         - pattern: #methodName#
           matches: is-method-identifier
+          precedes:
+            #exactChildConstraint#
+            not:
+              has: { nthChild: #paramsCountInc# }
           inside:
             stopBy:
               kind: class_declaration
@@ -317,7 +329,11 @@ local function get_definition_method_invocation(ts_node, parent1)
               pattern: #className#
   ]]
   return {
-    find_definition_method_def_pattern:gsub('#methodName#', methodName):gsub('#className#', fieldOwner),
+    find_definition_method_def_pattern
+      :gsub('#exactChildConstraint#', params_count == 0 and "" or "has: { nthChild: " .. params_count .. " }")
+      :gsub('#paramsCountInc#', params_count+1)
+      :gsub('#methodName#', methodName)
+      :gsub('#className#', fieldOwner),
     -- get_default_query() as fallback because maybe we inherit and the definition is in a superclass
     get_default_query()
   }

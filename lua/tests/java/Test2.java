@@ -22,4 +22,8 @@ public class Test2 extends Test3 {
   }
 
   public Test2() {}
+
+  public void overloaded() { }
+
+  public void overloaded(String param) { }
 }
