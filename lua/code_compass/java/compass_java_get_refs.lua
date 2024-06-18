@@ -96,7 +96,20 @@ rule:
   return references_pattern:gsub('#word#', word)
 end
 
-local function get_method_queries(word)
+local function get_params_count(ts_node)
+  local params = ts_node:next_named_sibling()
+  while params and params:type() ~= "formal_parameters" do
+    print(params:type())
+    params = params:next_named_sibling()
+  end
+  if params ~= nil then
+    return params:named_child_count()
+  end
+  return 0
+end
+
+local function get_method_queries(ts_node, word)
+  local params_count = get_params_count(ts_node)
   local references_pattern = [[
 id: invocatn
 language: Java
@@ -105,7 +118,10 @@ rule:
       kind: method_invocation
     pattern: #word#
     precedes:
-      kind: argument_list
+        kind: argument_list
+        #exactChildConstraint#
+        not:
+          has: { nthChild: #paramsCountInc# }
 ---
 id: meth_ref
 language: Java
@@ -121,7 +137,10 @@ rule:
           selector: method_reference
 
   ]]
-  return {references_pattern:gsub('#word#', word)}
+  return {references_pattern
+    :gsub('#word#', word)
+    :gsub('#exactChildConstraint#', params_count == 0 and "" or "has: { nthChild: " .. params_count .. " }")
+    :gsub('#paramsCountInc#', params_count+1)}
 end
 
 -- more lenient for variables, to catch more cases
@@ -176,7 +195,7 @@ local function get_references(opts, callback)
   elseif parent1:type() == "variable_declarator" then
     helpers.run_and_parse_ast_grep(word, get_variable_queries(word), opts, callback)
   elseif parent1:type() == "method_declaration" then
-    helpers.run_and_parse_ast_grep(word, get_method_queries(word), opts, callback)
+    helpers.run_and_parse_ast_grep(word, get_method_queries(ts_node, word), opts, callback)
   elseif parent1:type() == "constructor_declaration" then
     helpers.run_and_parse_ast_grep(word, get_create_queries(word), opts, callback)
   else

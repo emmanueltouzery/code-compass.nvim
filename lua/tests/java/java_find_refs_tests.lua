@@ -237,12 +237,6 @@ local function after_test1(script_path, passed, failed, after, res)
     path = "Test.java",
     query_name = "invocatn"
   }, {
-    col = 21,
-    line = "   transformString.transformString();",
-    lnum = 48,
-    path = "Test.java",
-    query_name = "invocatn"
-  }, {
     col = 44,
     line = '   Arrays.asList("a", "b").forEach(Test2::transformString);',
     lnum = 24,
