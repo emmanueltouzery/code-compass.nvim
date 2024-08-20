@@ -81,5 +81,13 @@ public class Test extends Test2 implements Test2 {
   public void extraTests() {
     testOverloaded();
     testOverloaded("test");
+
+    int val = 5;
+    Thread t = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        System.out.println(val);
+      }
+    });
   }
 }

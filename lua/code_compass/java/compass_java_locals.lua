@@ -17,6 +17,21 @@ local function add_captures(bufnr, start_line, iter, matches)
   end
 end
 
+-- for instance
+--    mProcessingThread = new Thread(new Runnable() {
+--      @Override
+--      public void run() { .. }
+--
+-- yes, run() is a method declaration, but it's not where i should stop
+-- when i'm looking for the scope start -> ignore it for that purpose
+local function is_not_local_lambda(node)
+  local cur_node = node
+  while cur_node ~= nil and cur_node:type() ~= "object_creation_expression" do
+    cur_node = cur_node:parent()
+  end
+  return cur_node == nil or cur_node:type() ~= "object_creation_expression"
+end
+
 local function find_scope_start_line(syntax_tree, bufnr)
   local cur_scope_start = 0
   local lnum = vim.fn.line('.') -- TODO bufnr but i read the line from the current window
@@ -27,9 +42,11 @@ local function find_scope_start_line(syntax_tree, bufnr)
   ]])
   local iter = q:iter_captures(syntax_tree:root(), bufnr, 0, -1)
   for _capture, node, _metadata in iter do
-    local row1, col1, row2, col2 = node:range()
-    if row1 < lnum and row1 > cur_scope_start then
-      cur_scope_start = row1
+    if is_not_local_lambda(node) then
+      local row1, col1, row2, col2 = node:range()
+      if row1 < lnum and row1 > cur_scope_start then
+        cur_scope_start = row1
+      end
     end
   end
   return cur_scope_start
