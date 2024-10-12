@@ -5,6 +5,45 @@ local function fix_fname_path(res)
   end
 end
 
+local function after_test10(script_path, passed, failed, after, res)
+  fix_fname_path(res)
+  local actual = vim.inspect(res)
+  local expected = vim.inspect({{
+    col = 11,
+    line = "   throw new Test2.Nested(\"bad\");",
+    lnum = 95,
+    path = "Test.java",
+    query_name = "create"
+  }})
+  if actual == expected then
+    table.insert(passed, 10)
+  else
+    table.insert(failed, 10)
+  end
+  after(passed, failed)
+end
+
+local function after_test9(script_path, passed, failed, after, res)
+  fix_fname_path(res)
+  local actual = vim.inspect(res)
+  local expected = vim.inspect({{
+    col = 11,
+    line = "   throw new Test2.Nested(\"bad\");",
+    lnum = 95,
+    path = "Test.java",
+    query_name = "create"
+  }})
+  if actual == expected then
+    table.insert(passed, 9)
+  else
+    table.insert(failed, 9)
+  end
+  after(passed, failed)
+  vim.fn.setpos('.', {0, 31, 13, 0}) -- 'public >Nested<(String p) {}'
+  require'code_compass'.find_references({matches_callback = function(res) after_test10(script_path, passed, failed, after, res) end})
+end
+
+
 local function after_test8(script_path, passed, failed, after, res)
   fix_fname_path(res)
   local actual = vim.inspect(res)
@@ -21,6 +60,8 @@ local function after_test8(script_path, passed, failed, after, res)
     table.insert(failed, 8)
   end
   after(passed, failed)
+  vim.fn.setpos('.', {0, 30, 25, 0}) -- 'public static class >Nested< {'
+  require'code_compass'.find_references({matches_callback = function(res) after_test9(script_path, passed, failed, after, res) end})
 end
 
 local function after_test7(script_path, passed, failed, after, res)
@@ -50,7 +91,7 @@ local function after_test7(script_path, passed, failed, after, res)
   else
     table.insert(failed, 7)
   end
-  vim.fn.setpos('.', {0, 18, 20, 0}) -- 'private String >field<(;
+  vim.fn.setpos('.', {0, 18, 20, 0}) -- 'private String >field<(;'
   require'code_compass'.find_references({matches_callback = function(res) after_test8(script_path, passed, failed, after, res) end})
 end
 

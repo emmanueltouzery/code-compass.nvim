@@ -90,4 +90,8 @@ public class Test extends Test2 implements Test2 {
       }
     });
   }
+
+  public invokeNested() {
+    throw new Test2.Nested("bad");
+  }
 }

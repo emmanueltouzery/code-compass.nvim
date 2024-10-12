@@ -26,4 +26,8 @@ public class Test2 extends Test3 {
   public void overloaded() { }
 
   public void overloaded(String param) { }
+
+  public static class Nested() {
+    public Nested(String p) {}
+  }
 }

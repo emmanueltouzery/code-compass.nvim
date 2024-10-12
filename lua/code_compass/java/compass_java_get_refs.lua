@@ -4,6 +4,15 @@ local function get_create_queries(word)
   local create_pattern = [[
 id: create
 language: Java
+utils:
+  hasType:
+    has:
+      kind: type_identifier
+      all:
+        - regex: ^#word#$
+        - not:
+           precedes:
+             regex: '\.'
 rule:
   any:
     - pattern:
@@ -15,6 +24,11 @@ rule:
     - pattern:
         context: #word#::new
         selector: method_reference
+
+    - has:
+        field: type
+        matches: hasType
+      kind: object_creation_expression
   ]]
   return {create_pattern:gsub('#word#', word)}
 end
@@ -47,6 +61,15 @@ rule:
 ---
 id: create
 language: Java
+utils:
+  hasType:
+    has:
+      kind: type_identifier
+      all:
+        - regex: ^#word#$
+        - not:
+           precedes:
+             regex: '\.'
 rule:
   any:
     - pattern:
@@ -58,6 +81,11 @@ rule:
     - pattern:
         context: #word#::new
         selector: method_reference
+
+    - has:
+        field: type
+        matches: hasType
+      kind: object_creation_expression
 
 ---
 id: field
