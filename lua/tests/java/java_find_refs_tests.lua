@@ -9,8 +9,8 @@ local function after_test10(script_path, passed, failed, after, res)
   fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
-    col = 11,
-    line = "   throw new Test2.Nested(\"bad\");",
+    col = 10,
+    line = "    throw new Test2.Nested(\"bad\");",
     lnum = 95,
     path = "Test.java",
     query_name = "create"
@@ -27,8 +27,8 @@ local function after_test9(script_path, passed, failed, after, res)
   fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
-    col = 11,
-    line = "   throw new Test2.Nested(\"bad\");",
+    col = 10,
+    line = "    throw new Test2.Nested(\"bad\");",
     lnum = 95,
     path = "Test.java",
     query_name = "create"
@@ -48,8 +48,8 @@ local function after_test8(script_path, passed, failed, after, res)
   fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
-    col = 17,
-    line = "   return this.field;",
+    col = 16,
+    line = "    return this.field;",
     lnum = 21,
     path = "Test2.java",
     query_name = "use"
@@ -68,20 +68,20 @@ local function after_test7(script_path, passed, failed, after, res)
   fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
-    col = 10,
-    line = "   (new Test2()).function1();",
+    col = 9,
+    line = "    (new Test2()).function1();",
     lnum = 17,
     path = "Test.java",
     query_name = "create"
   }, {
-    col = 23,
-    line = "   Test2 myVar = new Test2();",
+    col = 22,
+    line = "    Test2 myVar = new Test2();",
     lnum = 39,
     path = "Test.java",
     query_name = "create"
   }, {
-    col = 37,
-    line = '   Arrays.asList("a", "b").forEach(Test2::new);',
+    col = 36,
+    line = '    Arrays.asList("a", "b").forEach(Test2::new);',
     lnum = 60,
     path = "Test.java",
     query_name = "create"
@@ -99,8 +99,8 @@ local function after_test6(script_path, passed, failed, after, res)
   fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
-    col = 5,
-    line = "   anyName();",
+    col = 4,
+    line = "    anyName();",
     lnum = 14,
     path = "Test2.java",
     query_name = "invocatn"
@@ -118,8 +118,8 @@ local function after_test5(script_path, passed, failed, after, res)
   fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
-    col = 27,
-    line = "   TestEnum v = TestEnum.V1;",
+    col = 26,
+    line = "    TestEnum v = TestEnum.V1;",
     lnum = 18,
     path = "Test.java",
     query_name = "field",
@@ -137,68 +137,68 @@ local function after_test4(script_path, passed, failed, after, res)
   fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
-    col = 10,
-    line = "   (new Test2()).function1();",
+    col = 9,
+    line = "    (new Test2()).function1();",
     lnum = 17,
     path = "Test.java",
     query_name = "create"
   }, {
-    col = 23,
-    line = "   Test2 myVar = new Test2();",
+    col = 22,
+    line = "    Test2 myVar = new Test2();",
     lnum = 39,
     path = "Test.java",
     query_name = "create"
   }, {
-    col = 37,
-    line = '   Arrays.asList("a", "b").forEach(Test2::new);',
+    col = 36,
+    line = '    Arrays.asList("a", "b").forEach(Test2::new);',
     lnum = 60,
     path = "Test.java",
     query_name = "create"
   }, {
-    col = 33,
-    line = "   External var = new External(Test2.MY_CONST);",
+    col = 32,
+    line = "    External var = new External(Test2.MY_CONST);",
     lnum = 12,
     path = "Test.java",
     query_name = "field"
   }, {
-    col = 46,
-    line = " private List<Integer> vals = Arrays.asList(Test2.MY_CONST);",
+    col = 45,
+    line = "  private List<Integer> vals = Arrays.asList(Test2.MY_CONST);",
     lnum = 43,
     path = "Test.java",
     query_name = "field"
   }, {
-    col = 44,
-    line = "blic class Test extends Test2 implements Test2 {",
+    col = 43,
+    line = "public class Test extends Test2 implements Test2 {",
     lnum = 5,
     path = "Test.java",
     query_name = "implemnt"
   }, {
-    col = 27,
-    line = "blic class Test extends Test2 implements Test2 {",
+    col = 26,
+    line = "public class Test extends Test2 implements Test2 {",
     lnum = 5,
     path = "Test.java",
     query_name = "inherit"
   }, {
-    col = 5,
-    line = '   Test2.transformString("te");',
+    col = 4,
+    line = '    Test2.transformString("te");',
     lnum = 34,
     path = "Test.java",
     query_name = "invocatn"
   }, {
-    col = 5,
-    line = "   Test2.overloaded();",
+    col = 4,
+    line = "    Test2.overloaded();",
     lnum = 71,
     path = "Test.java",
     query_name = "invocatn"
   }, {
-    col = 5,
-    line = '   Test2.overloaded("test");',
+    col = 4,
+    line = '    Test2.overloaded("test");',
     lnum = 72,
     path = "Test.java",
     query_name = "invocatn"
   }, {
-    col = 37,
-    line = '   Arrays.asList("a", "b").forEach(Test2::transformString);',
+    col = 36,
+    line = '    Arrays.asList("a", "b").forEach(Test2::transformString);',
     lnum = 24,
     path = "Test.java",
     query_name = "meth_ref"
@@ -216,20 +216,20 @@ local function after_test3(script_path, passed, failed, after, res)
   fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
-    col = 39,
-    line = "   External var = new External(Test2.MY_CONST);",
+    col = 38,
+    line = "    External var = new External(Test2.MY_CONST);",
     lnum = 12,
     path = "Test.java",
     query_name = "use"
   }, {
-    col = 52,
-    line = " private List<Integer> vals = Arrays.asList(Test2.MY_CONST);",
+    col = 51,
+    line = "  private List<Integer> vals = Arrays.asList(Test2.MY_CONST);",
     lnum = 43,
     path = "Test.java",
     query_name = "use"
   }, {
-    col = 20,
-    line = "   int localVar = MY_CONST;",
+    col = 19,
+    line = "    int localVar = MY_CONST;",
     lnum = 13,
     path = "Test2.java",
     query_name = "use"
@@ -247,8 +247,8 @@ local function after_test2(script_path, passed, failed, after, res)
   fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
-    col = 19,
-    line = "   (new Test2()).function1();",
+    col = 18,
+    line = "    (new Test2()).function1();",
     lnum = 17,
     path = "Test.java",
     query_name = "invocatn",
@@ -266,26 +266,26 @@ local function after_test1(script_path, passed, failed, after, res)
   fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
-    col = 11,
-    line = '   Test2.transformString("te");',
+    col = 10,
+    line = '    Test2.transformString("te");',
     lnum = 34,
     path = "Test.java",
     query_name = "invocatn",
   }, {
-    col = 11,
-    line = '   myVar.transformString("te");',
+    col = 10,
+    line = '    myVar.transformString("te");',
     lnum = 40,
     path = "Test.java",
     query_name = "invocatn"
   }, {
-    col = 44,
-    line = '   Arrays.asList("a", "b").forEach(Test2::transformString);',
+    col = 43,
+    line = '    Arrays.asList("a", "b").forEach(Test2::transformString);',
     lnum = 24,
     path = "Test.java",
     query_name = "meth_ref",
   }, { -- TODO this match is wrong.. this is refering to transformString in another class
-    col = 43,
-    line = '   Arrays.asList("a", "b").forEach(this::transformString);',
+    col = 42,
+    line = '    Arrays.asList("a", "b").forEach(this::transformString);',
     lnum = 33,
     path = "Test.java",
     query_name = "meth_ref",

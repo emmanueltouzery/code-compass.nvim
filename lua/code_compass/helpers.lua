@@ -28,55 +28,36 @@ local function run_and_parse_ast_grep(word, queries, opts, run_finish)
   local cwd = vim.fn.getcwd()
   local line_in_result = 1
   local fname, lnum_str, col_str, query_name
-  local matches = {}
   local search_list = (opts and opts.search_list) or ([[$(rg -l ]] .. word .. [[ . | tr '\n' ' ')]])
   -- pre-filter the files to process with rg for speed
-  local command = [[ast-grep scan --inline-rules ']] .. queries[1] .. "' "  .. search_list
+  local command = [[ast-grep scan --json --inline-rules ']] .. queries[1] .. "' "  .. search_list
+  local all_output = ""
   vim.fn.jobstart(command, {
     cwd = cwd,
     on_stdout = vim.schedule_wrap(function(j, output)
-      -- TODO probably switch to JSON parsing
-      for _, line in ipairs(output) do
-        if #line > 0 then
-          if line_in_result == 1 then
-            if line:match("^help%[") then
-              query_name = line:gsub("^help%[", ""):gsub("%]: ", "")
-            end
-            line_in_result = line_in_result + 1
-          elseif line_in_result == 2 then
-            fname, lnum_str, col_str = line:gmatch("%.([^:]+):([^:]+):([^:]+)")()
-            line_in_result = line_in_result + 1
-          elseif line_in_result == 3 then
-            -- blank, skip
-            line_in_result = line_in_result + 1
-          elseif line_in_result == 4 then
-            -- line contents? bunch of ^^^ under the proper line
-            if line:match("%^%^") then
-              line_in_result = line_in_result + 1
-              table.insert(matches, {
-                lnum = tonumber(lnum_str),
-                col = tonumber(col_str),
-                path = cwd .. '/' .. fname,
-                fname = fname,
-                line = line_contents,
-                query_name = query_name
-              })
-            else
-              line_contents = str_sub(line, 7):gsub("╭", "")
-            end
-          elseif line:match("help%[") then
-            query_name = line:gsub("^help%[", ""):gsub("%]: ", "")
-            line_in_result = 2
-          end
-        end
-      end
+      all_output = all_output .. table.concat(output, "\n")
     end),
     on_exit = vim.schedule_wrap(function(j, output)
-      if #matches == 0 and #queries > 1 then
+      local json_matches = {}
+      if #all_output > 0 then
+        json_matches = vim.json.decode(all_output)
+      end
+      if #json_matches == 0 and #queries > 1 then
         -- try the next possible query
         table.remove(queries, 1)
         run_and_parse_ast_grep(word, queries, opts, run_finish)
       else
+        local matches = {}
+        for _, match in ipairs(json_matches) do
+          table.insert(matches, {
+            lnum = match.range.start.line+1,
+            col = match.range.start.column,
+            path = cwd .. '/' .. match.file,
+            fname = match.file,
+            line = match.lines,
+            query_name = match.ruleId,
+          })
+        end
         run_finish(matches)
       end
     end)

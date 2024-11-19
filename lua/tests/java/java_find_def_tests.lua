@@ -29,8 +29,8 @@ local function after_test31(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect(
   {{
-    col = 15,
-    line = "   public void testOverloaded(String p) {",
+    col = 14,
+    line = "  public void testOverloaded(String p) {",
     lnum = 78,
     path = "Test.java",
     query_name = "query"
@@ -49,8 +49,8 @@ local function after_test30(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect(
   {{
-    col = 15,
-    line = "   public void testOverloaded() {",
+    col = 14,
+    line = "  public void testOverloaded() {",
     lnum = 75,
     path = "Test.java",
     query_name = "query"
@@ -70,8 +70,8 @@ local function after_test29(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect(
   {{
-    col = 15,
-    line = " public void overloaded(String param) { }",
+    col = 14,
+    line = "  public void overloaded(String param) { }",
     lnum = 28,
     path = "Test2.java",
     query_name = "query"
@@ -90,8 +90,8 @@ local function after_test28(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect(
   {{
-    col = 15,
-    line = " public void overloaded() { }",
+    col = 14,
+    line = "  public void overloaded() { }",
     lnum = 26,
     path = "Test2.java",
     query_name = "query"
@@ -110,8 +110,8 @@ local function after_test27(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect(
   {{
-    col = 20,
-    line = "protected String test3Field;",
+    col = 19,
+    line = "  protected String test3Field;",
     lnum = 2,
     path = "Test3.java",
     query_name = "query"
@@ -130,8 +130,8 @@ local function after_test26(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect(
   {{
-    col = 20,
-    line = "protected String test3Field;",
+    col = 19,
+    line = "  protected String test3Field;",
     lnum = 2,
     path = "Test3.java",
     query_name = "query"
@@ -151,8 +151,8 @@ local function after_test25(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect(
   {{
-    col = 20,
-    line = "protected String test3Field;",
+    col = 19,
+    line = "  protected String test3Field;",
     lnum = 2,
     path = "Test3.java",
     query_name = "query"
@@ -192,8 +192,8 @@ local function after_test23(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect(
   {{
-    col = 10,
-    line = " public Test2() {}",
+    col = 9,
+    line = "  public Test2() {}",
     lnum = 24,
     path = "Test2.java",
     query_name = "ctor"
@@ -232,8 +232,8 @@ local function after_test21(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect(
   {{
-    col = 18,
-    line = "   private String testMethodRefThis() {",
+    col = 17,
+    line = "  private String testMethodRefThis() {",
     lnum = 32,
     path = "Test.java",
     query_name = "query"
@@ -253,8 +253,8 @@ local function after_test20(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect(
   {{
-    col = 14,
-    line = " public class Test2 extends Test3 {",
+    col = 13,
+    line = "public class Test2 extends Test3 {",
     lnum = 1,
     path = "Test2.java",
     query_name = "query"
@@ -294,14 +294,14 @@ local function after_test18(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect(
   {{
-    col = 17,
-    line = "   public String transformString(String input) {",
+    col = 16,
+    line = "  public String transformString(String input) {",
     lnum = 12,
     path = "Test2.java",
     query_name = "query"
   }, {
-    col = 17,
-    line = "   public String transformString(String input) {",
+    col = 16,
+    line = "  public String transformString(String input) {",
     lnum = 27,
     path = "Test.java",
     query_name = "query"
@@ -321,8 +321,8 @@ local function after_test17(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect(
   {{
-    col = 17,
-    line = "   public String transformString(String input) {",
+    col = 16,
+    line = "  public String transformString(String input) {",
     lnum = 12,
     path = "Test2.java",
     query_name = "query"
@@ -341,8 +341,8 @@ local function after_test16(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect(
   {{
-    col = 5,
-    line = "  V1,",
+    col = 4,
+    line = "    V1,",
     lnum = 8,
     path = "Test2.java",
     query_name = "query"
@@ -361,8 +361,8 @@ local function after_test15(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect(
   {{
-    col = 15,
-    line = "   public enum TestEnum {",
+    col = 14,
+    line = "  public enum TestEnum {",
     lnum = 7,
     path = "Test2.java",
     query_name = "query"
@@ -381,8 +381,8 @@ local function after_test14(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect(
   {{
-    col = 14,
-    line = " public class Test extends Test2 implements Test2 {",
+    col = 13,
+    line = "public class Test extends Test2 implements Test2 {",
     lnum = 5,
     path = "Test.java",
     query_name = "query"
@@ -401,8 +401,8 @@ local function after_test13(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect(
   {{
-    col = 14,
-    line = " public class Test2 extends Test3 {",
+    col = 13,
+    line = "public class Test2 extends Test3 {",
     lnum = 1,
     path = "Test2.java",
     query_name = "query"
@@ -441,7 +441,7 @@ local function after_test11(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect(
   {{
-    col = 14,
+    col = 13,
     line = "public class ClassOne {",
     lnum = 3,
     path = "PackageOneClassOne.java",
@@ -461,8 +461,8 @@ local function after_test10(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect(
   {{
-    col = 17,
-    line = "   public String transformString(String input) {",
+    col = 16,
+    line = "  public String transformString(String input) {",
     lnum = 27,
     path = "Test.java",
     query_name = "query",
@@ -482,8 +482,8 @@ local function after_test9(script_path, passed, failed, after, res)
   local actual = vim.inspect(res)
   local expected = vim.inspect(
   {{
-    col = 18,
-    line = "private String field;",
+    col = 17,
+    line = "  private String field;",
     lnum = 7,
     path = "Test.java",
     query_name = "query",
@@ -501,8 +501,8 @@ local function after_test8(script_path, passed, failed, after, res)
   fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
-    col = 17,
-    line = "   public String transformString(String input) {",
+    col = 16,
+    line = "  public String transformString(String input) {",
     lnum = 12,
     path = "Test2.java",
     query_name = "query",
@@ -520,8 +520,8 @@ local function after_test7(script_path, passed, failed, after, res)
   fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
-    col = 15,
-    line = "   public enum TestEnum {",
+    col = 14,
+    line = "  public enum TestEnum {",
     lnum = 7,
     path = "Test2.java",
     query_name = "query",
@@ -539,8 +539,8 @@ local function after_test6(script_path, passed, failed, after, res)
   fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
-    col = 21,
-    line = "public static int MY_CONST = 16;",
+    col = 20,
+    line = "  public static int MY_CONST = 16;",
     lnum = 3,
     path = "Test2.java",
     query_name = "query",
@@ -558,8 +558,8 @@ local function after_test5(script_path, passed, failed, after, res)
   fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
-    col = 14,
-    line = " public class Test2 extends Test3 {",
+    col = 13,
+    line = "public class Test2 extends Test3 {",
     lnum = 1,
     path = "Test2.java",
     query_name = "query",
@@ -577,8 +577,8 @@ local function after_test4(script_path, passed, failed, after, res)
   fix_fname_path(res)
   local actual = vim.inspect(res)
   local expected = vim.inspect({{
-    col = 15,
-    line = "public void function1() {}",
+    col = 14,
+    line = "  public void function1() {}",
     lnum = 5,
     path = "Test2.java",
     query_name = "query",

@@ -213,6 +213,9 @@ local function get_references(opts, callback)
       if modifiers:type() == "modifiers" and modifiers_contents:match("private") then
         -- private field, let's only keep results in the current file
         local run_opts = { search_list = "./" .. vim.fn.expand('%') }
+        if vim.startswith(vim.fn.expand('%'), "/") then
+          run_opts = { search_list = vim.fn.expand('%') }
+        end
         helpers.run_and_parse_ast_grep(word, get_variable_queries(word), run_opts, callback)
       else
         helpers.run_and_parse_ast_grep(word, get_variable_queries(word), opts, callback)
