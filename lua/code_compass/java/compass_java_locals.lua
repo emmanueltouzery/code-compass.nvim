@@ -91,7 +91,7 @@ local function find_all_local_declarations()
   parameters: (identifier) @identifier (#eq? @identifier "]] .. word .. [[")) ; x -> ...
   ]])
 
-  local parser = require('nvim-treesitter.parsers').get_parser(bufnr, "java")
+  local parser = vim.treesitter.get_parser(bufnr, "java", {error=false})
   local syntax_tree = parser:parse()[1]
   local iter = q:iter_captures(syntax_tree:root(), bufnr, 0, -1)
   local module_fnames = {vim.fn.expand('%:p')} -- immediately add the current file
@@ -134,7 +134,7 @@ end
 local function find_import(class_name, opts)
   local bufnr = 0
   local matches = {}
-  local parser = require('nvim-treesitter.parsers').get_parser(bufnr, "java")
+  local parser = vim.treesitter.get_parser(bufnr, "java", {error=false})
   local syntax_tree = parser:parse()[1]
   return attempt_import_declaration_java(syntax_tree, bufnr, matches, class_name)
 end

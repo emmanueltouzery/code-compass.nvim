@@ -651,7 +651,9 @@ end
 
 local function run_find_def_tests(after)
   vim.fn.setpos('.', {0, 13, 14, 0}) -- 'return >field<'
-  require'code_compass'.find_definition({matches_callback = function(res) after_test1(script_path, {}, {}, after, res) end})
+  vim.defer_fn(function()
+    require'code_compass'.find_definition({matches_callback = function(res) after_test1(script_path, {}, {}, after, res) end})
+  end, 0)
 end
 
 return {

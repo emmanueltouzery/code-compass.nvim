@@ -301,7 +301,9 @@ end
 
 local function run_find_refs_tests(after)
   vim.fn.setpos('.', {0, 12, 21, 0}) -- 'String >transformString<('
-  require'code_compass'.find_references({matches_callback = function(res) after_test1(script_path, {}, {}, after, res) end})
+  vim.defer_fn(function()
+    require'code_compass'.find_references({matches_callback = function(res) after_test1(script_path, {}, {}, after, res) end})
+  end, 10)
 end
 
 return {

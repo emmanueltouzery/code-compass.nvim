@@ -195,8 +195,7 @@ end
 local function get_references(opts, callback)
   local word = vim.fn.expand('<cword>')
   local bufnr = 0
-  local ts_utils = require("nvim-treesitter.ts_utils")
-  local ts_node = ts_utils.get_node_at_cursor()
+  local ts_node = vim.treesitter.get_node()
   local parent1 = ts_node:parent()
   if parent1:type() == "variable_declarator"
       and parent1:parent():type() == "field_declaration" then

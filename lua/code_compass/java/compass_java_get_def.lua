@@ -140,8 +140,7 @@ local function run_finish(matches, opts)
   end
   if #matches == 0 then
     -- not locals. maybe we're accessing a field?
-    local ts_utils = require("nvim-treesitter.ts_utils")
-    local ts_node = ts_utils.get_node_at_cursor()
+    local ts_node = vim.treesitter.get_node()
     local parent1 = ts_node:parent()
     get_definition_field_access_with_owner(ts_node, parent1, "this", run_finish, opts)
     return
@@ -426,7 +425,7 @@ local function get_definition_type(parent1)
     name: (identifier) @identifier (#eq? @identifier "]] .. word .. [[")))
   ]])
 
-  local parser = require('nvim-treesitter.parsers').get_parser(bufnr, "java")
+  local parser = vim.treesitter.get_parser(bufnr, "java", {error=false})
   local syntax_tree = parser:parse()[1]
   local iter = q:iter_captures(syntax_tree:root(), bufnr, 0, -1)
   local package_statement = nil
@@ -507,8 +506,7 @@ end
 
 local function get_definition(opts)
   local word = vim.fn.expand('<cword>')
-  local ts_utils = require("nvim-treesitter.ts_utils")
-  local ts_node = ts_utils.get_node_at_cursor()
+  local ts_node = vim.treesitter.get_node()
   local parent1 = ts_node:parent()
   if parent1:type() == "method_reference" and ts_node:prev_sibling() ~= nil then
      queries_with_local_fallback(get_definition_method_reference(ts_node, parent1), word, opts)
