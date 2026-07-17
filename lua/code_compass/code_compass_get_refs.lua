@@ -19,7 +19,6 @@ local function picker_finish(matches)
     local finders = require "telescope.finders"
     local conf = require("telescope.config").values
     local entry_display = require("telescope.pickers.entry_display")
-    local Str = require'plenary.strings'
     local opts = {}
 
     local displayer = entry_display.create {
@@ -31,8 +30,9 @@ local function picker_finish(matches)
       },
     }
     local make_display = function(entry)
+      local escaped_cwd = helpers.escape_pattern(vim.loop.cwd()) .. "/"
       return displayer {
-        { Str.truncate(entry.path, 35, "…", -1), "TelescopeResultsIdentifier" },
+        { helpers.truncate_left(entry.path:gsub(escaped_cwd, ""), 35), "TelescopeResultsIdentifier" },
         { entry.query_name },
         { entry.line, "Special" },
       }

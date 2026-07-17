@@ -15,6 +15,19 @@ local function str_sub(str, i, j)
     return str:sub(s + 1, e)
 end
 
+-- https://stackoverflow.com/a/34953646/516188
+local function escape_pattern(text)
+  return text:gsub("([^%w])", "%%%1")
+end
+
+local function truncate_left(str, max)
+  local len = vim.fn.strcharlen(str)
+  if len <= max then
+    return str
+  end
+  return "…" .. vim.fn.strcharpart(str, len - max + 1, len)
+end
+
 local function find_buf_for_fname(fname)
   for i, bufnr in pairs(vim.api.nvim_list_bufs()) do
     if vim.api.nvim_buf_get_name(bufnr) == fname then
@@ -82,8 +95,9 @@ local function picker_finish(matches)
     local finders = require "telescope.finders"
     local conf = require("telescope.config").values
     local entry_display = require("telescope.pickers.entry_display")
-    local Str = require'plenary.strings'
     local opts = {}
+
+    local escaped_cwd = helpers.escape_pattern(vim.loop.cwd()) .. "/"
 
     local displayer = entry_display.create {
       separator = " ",
@@ -94,7 +108,7 @@ local function picker_finish(matches)
     }
     local make_display = function(entry)
       return displayer {
-        { Str.truncate(entry.path, 35, "…", -1), "TelescopeResultsIdentifier" },
+        { truncate_left(entry.path:gsub(escaped_cwd, ""), 35), "TelescopeResultsIdentifier" },
         { entry.line, "Special" },
       }
     end
@@ -118,6 +132,8 @@ end
 
 return {
   str_sub = str_sub,
+  truncate_left = truncate_left,
+  escape_pattern = escape_pattern,
   find_buf_for_fname = find_buf_for_fname,
   run_and_parse_ast_grep = run_and_parse_ast_grep,
   picker_finish = picker_finish,
