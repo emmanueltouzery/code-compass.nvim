@@ -97,7 +97,7 @@ local function picker_finish(matches)
     local entry_display = require("telescope.pickers.entry_display")
     local opts = {}
 
-    local escaped_cwd = helpers.escape_pattern(vim.loop.cwd()) .. "/"
+    local escaped_cwd = escape_pattern(vim.loop.cwd()) .. "/"
 
     local displayer = entry_display.create {
       separator = " ",
